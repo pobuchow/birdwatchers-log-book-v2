@@ -23,9 +23,6 @@ public class Email {
     @OneToOne(mappedBy = "email")
     private User user;
 
-    public Email() {
-    }
-
     public Email(String email) throws EmailValidationFailedException {
         validate(email);
         this.email = email;

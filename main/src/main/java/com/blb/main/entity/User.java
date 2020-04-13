@@ -1,8 +1,9 @@
 package com.blb.main.entity;
 
+import com.blb.main.dto.UserTO;
 import com.blb.main.entity.exception.EmailValidationFailedException;
 import com.blb.main.entity.exception.LoginValidationFailedException;
-import com.blb.main.entity.exception.UserCreationException;
+import com.blb.main.service.exception.UserCreationException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -24,14 +25,6 @@ public class User {
     @JoinColumn(name = "email_id", referencedColumnName = "id")
     private Email email;
 
-    public User() {
-    }
-
-    public User(@NotNull Login login, @NotNull Email email) {
-        this.login = login;
-        this.email = email;
-    }
-
     public User(String login, String email) throws UserCreationException {
         try {
             this.login = new Login(login);
@@ -45,12 +38,16 @@ public class User {
         }
     }
 
+    public User(UserTO newUser) throws UserCreationException {
+        this(newUser.getUserName(), newUser.getEmail());
+    }
+
     public long getId() {
         return id;
     }
 
-    public String getUsername() {
-        return login.getLogin();
+    public String getUserName() {
+        return login.getUserName();
     }
 
     public String getEmail() {

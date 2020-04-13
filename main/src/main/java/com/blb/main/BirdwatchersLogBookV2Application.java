@@ -2,7 +2,7 @@ package com.blb.main;
 
 import com.blb.main.dao.UserRepository;
 import com.blb.main.entity.User;
-import com.blb.main.entity.exception.UserCreationException;
+import com.blb.main.service.exception.UserCreationException;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
