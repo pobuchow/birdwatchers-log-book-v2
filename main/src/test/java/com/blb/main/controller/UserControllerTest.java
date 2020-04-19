@@ -38,56 +38,48 @@ class UserControllerTest {
     @MockBean
     private UserRepository userRepository;
 
-    private static final String BASIC_USER_PATH = "/user";
-    private static final String ADD_USER_PATH = "/add";
+    private final static String BASIC_USER_PATH = "/user";
+    private final static String ADD_USER_PATH = "/add";
 
     private final static String CORRECT_USERNAME = "USER_A";
-    private final static String TOO_SHORT_USERNAME = "ABC";
     private final static String TOO_LONG_USERNAME = "TOO_LONG_USERNAME";
 
     private final static String CORRECT_EMAIL = "user@qwe.abc";
     private final static String INCORRECT_EMAIL = "user.qwe.abc";
 
+    private final static String CORRECT_PASSWORD = "C0rrect!";
+    private static final String TOO_LONG_PASSWORD = "PASSWORD01#TooLong";
+
     @Test
-    @DisplayName("Should insert new user with correct user name and email and then return its TO")
+    @DisplayName("Should insert new user with correct user name, password and email and then return its TO")
     void addNewUser() throws UserCreationException, Exception {
 
-        Mockito.doReturn(new UserTO(1L, CORRECT_USERNAME, CORRECT_EMAIL)).when(userService).insertUser(CORRECT_USERNAME, CORRECT_EMAIL);
+        Mockito.doReturn(new UserTO(1L, CORRECT_USERNAME, CORRECT_EMAIL, CORRECT_PASSWORD)).when(userService).insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post(BASIC_USER_PATH + ADD_USER_PATH)
                 .param("username", CORRECT_USERNAME)
+                .param("password", CORRECT_PASSWORD)
                 .param("email", CORRECT_EMAIL))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.userName", is(CORRECT_USERNAME)).isString())
+                .andExpect(jsonPath("$.password", is(CORRECT_PASSWORD)).isString())
                 .andExpect(jsonPath("$.email", is(CORRECT_EMAIL)).isString())
                 .andExpect(jsonPath("$.id").isNumber());
     }
 
     @Test
-    @DisplayName("Should not insert new user with too short user name and then return Exception")
-    void addNewUserWithTooShortUserName() throws Exception, UserCreationException {
-
-        Mockito.doThrow(UserCreationException.class).when(userService).insertUser(TOO_SHORT_USERNAME, CORRECT_EMAIL);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + ADD_USER_PATH)
-                .param("username", TOO_SHORT_USERNAME)
-                .param("email", CORRECT_EMAIL))
-                .andExpect(status().isUnprocessableEntity());
-    }
-
-    @Test
     @DisplayName("Should not insert new user with too long user name and then return Exception")
-    void addNewUserWithTooLongUserName() throws Exception, UserCreationException {
+    void addNewUserWithWrongUserName() throws Exception, UserCreationException {
 
-        Mockito.doThrow(UserCreationException.class).when(userService).insertUser(TOO_LONG_USERNAME, CORRECT_EMAIL);
+        Mockito.doThrow(UserCreationException.class).when(userService).insertUser(TOO_LONG_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post(BASIC_USER_PATH + ADD_USER_PATH)
                 .param("username", TOO_LONG_USERNAME)
+                .param("password", CORRECT_PASSWORD)
                 .param("email", CORRECT_EMAIL))
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -96,11 +88,12 @@ class UserControllerTest {
     @DisplayName("Should not insert new user with wrong email and then return Exception")
     void addNewUserWithWrongEmail() throws Exception, UserCreationException {
 
-        Mockito.doThrow(UserCreationException.class).when(userService).insertUser(CORRECT_USERNAME, INCORRECT_EMAIL);
+        Mockito.doThrow(UserCreationException.class).when(userService).insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, INCORRECT_EMAIL);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post(BASIC_USER_PATH + ADD_USER_PATH)
                 .param("username", CORRECT_USERNAME)
+                .param("password", CORRECT_PASSWORD)
                 .param("email", INCORRECT_EMAIL))
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -111,17 +104,42 @@ class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post(BASIC_USER_PATH + ADD_USER_PATH)
-                .param("email", INCORRECT_EMAIL))
+                .param("password", CORRECT_PASSWORD)
+                .param("email", CORRECT_EMAIL))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Should not insert new user without email and then return Exception")
     void addNewUserWithoutEmail() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .post(BASIC_USER_PATH + ADD_USER_PATH)
+                .param("username", CORRECT_USERNAME)
+                .param("password", CORRECT_PASSWORD))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Should not insert new user without password and then return Exception")
+    void addNewUserWithoutPassword() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .post(BASIC_USER_PATH + ADD_USER_PATH)
+                .param("username", CORRECT_USERNAME)
+                .param("email", CORRECT_EMAIL))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Should not insert new user with too long password and then return Exception")
+    void addNewUserWithTooLongPassword() throws Exception, UserCreationException {
+
+        Mockito.doThrow(UserCreationException.class).when(userService).insertUser(CORRECT_USERNAME, TOO_LONG_PASSWORD, CORRECT_EMAIL);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post(BASIC_USER_PATH + ADD_USER_PATH)
-                .param("username", CORRECT_USERNAME))
-                .andExpect(status().isBadRequest());
+                .param("username", CORRECT_USERNAME)
+                .param("password", TOO_LONG_PASSWORD)
+                .param("email", CORRECT_EMAIL))
+                .andExpect(status().isUnprocessableEntity());
     }
 }
