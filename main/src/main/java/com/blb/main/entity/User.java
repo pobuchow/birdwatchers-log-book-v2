@@ -25,9 +25,9 @@ public class User {
     @JoinColumn(name = "email_id", referencedColumnName = "id")
     private Email email;
 
-    public User(String login, String email) throws UserCreationException {
+    public User(String login, String password, String email) throws UserCreationException {
         try {
-            this.login = new Login(login);
+            this.login = new Login(login, password);
         } catch (LoginValidationFailedException e) {
             throw new UserCreationException("Error while creating login: " + e.getMessage());
         }
@@ -39,7 +39,11 @@ public class User {
     }
 
     public User(UserTO newUser) throws UserCreationException {
-        this(newUser.getUserName(), newUser.getEmail());
+        this(newUser.getUserName(), newUser.getPassword(), newUser.getEmail());
+    }
+
+    public User() {
+        //constructor jor jpa
     }
 
     public long getId() {
@@ -52,5 +56,9 @@ public class User {
 
     public String getEmail() {
         return email.getEmail();
+    }
+
+    public String getPassword() {
+        return login.getPassword();
     }
 }

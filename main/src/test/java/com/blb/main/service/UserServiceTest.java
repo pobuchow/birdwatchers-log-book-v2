@@ -12,6 +12,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {UserService.class})
@@ -103,5 +105,12 @@ class UserServiceTest {
     @DisplayName("Should not insert new user with no special character in password")
     void shouldThrowExceptionWhenPasswordHasNoSpecialCharacter() {
         Assertions.assertThrows(UserCreationException.class, () -> userService.insertUser(CORRECT_USERNAME, PASSWORD_WITHOUT_SPECIAL_CHARACTER, CORRECT_EMAIL), "Password should contain a special character");
+    }
+
+    @Test
+    @DisplayName("Should not insert new user with not unique username")
+    void shouldThrowExceptionWhenUserNameIsNotUnique() {
+        Mockito.when(userRepository.findByLoginUserName(CORRECT_USERNAME)).thenReturn(Optional.of(new User()));
+        Assertions.assertThrows(UserCreationException.class, () -> userService.insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL), "UserName must be unique");
     }
 }

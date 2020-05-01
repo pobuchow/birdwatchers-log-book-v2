@@ -8,22 +8,21 @@ public class UserTO {
 
     private long id;
     private String userName;
+    private String password;
     private String email;
 
     public UserTO(User entity) {
         this.id = entity.getId();
         this.userName = entity.getUserName();
+        this.password = entity.getPassword();
         this.email = entity.getEmail();
     }
 
-    public UserTO(long id, String username, String email) {
+    public UserTO(long id, String username, String email, String password) {
         this.id = id;
         this.userName = username;
         this.email = email;
-    }
-
-    public long getId() {
-        return id;
+        this.password = password;
     }
 
     public String getUserName() {
@@ -33,4 +32,6 @@ public class UserTO {
     public String getEmail() {
         return email;
     }
+
+    public String getPassword() { return password; }
 }

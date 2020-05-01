@@ -28,10 +28,14 @@ public class Email {
         this.email = email;
     }
 
+    public Email() {
+        //constructor for jpa
+    }
+
     private void validate(String email) throws EmailValidationFailedException {
         if (email == null) throw new EmailValidationFailedException("Email can not be null");
         if (!VALID_EMAIL_ADDRESS_REGEX.matcher(email).matches())
-            throw new EmailValidationFailedException(email + "does not matches " + VALID_EMAIL_ADDRESS_REGEX + " pattern.");
+            throw new EmailValidationFailedException(email + " does not match " + VALID_EMAIL_ADDRESS_REGEX + " pattern.");
     }
 
     public String getEmail() {
