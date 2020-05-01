@@ -7,13 +7,23 @@ import com.blb.main.service.exception.UserCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ConstraintViolationException;
+
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
 
-    public UserTO insertUser(String userName, String email) throws UserCreationException {
-        return new UserTO(userRepository.save(new User(userName, email)));
+    public UserTO insertUser(String userName, String password, String email) throws UserCreationException {
+        final User userToSave = new User(userName, password, email);
+        if(userRepository.findByLoginUserName(userName).isPresent()) throw new UserCreationException("UserName must be unique");
+        User savedUser = null;
+        try {
+            savedUser = userRepository.save(userToSave);
+        }catch (ConstraintViolationException ex){
+            throw new UserCreationException(ex.getMessage());
+        }
+        return new UserTO(savedUser);
     }
 }

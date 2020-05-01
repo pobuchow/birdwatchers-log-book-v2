@@ -22,8 +22,8 @@ public class BirdwatchersLogBookV2Application {
         return args -> {
             try {
                 userRepository.saveAll(Arrays.asList(
-                        new User("Diego", "diego@old-camp.xyz"),
-                        new User("Lester", "lester@swamp-camp.abc")
+                        new User("Diego", "Dieg0!pass", "diego@old-camp.xyz"),
+                        new User("Lester", "Lester0!pass", "lester@swamp-camp.abc")
                 ));
             } catch (UserCreationException e) {
                 e.printStackTrace();
