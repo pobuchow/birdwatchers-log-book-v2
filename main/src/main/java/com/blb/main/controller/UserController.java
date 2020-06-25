@@ -9,14 +9,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping(path = "/user")
+@RequestMapping(path = "/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/add")
     @ResponseBody
+    @CrossOrigin("http://localhost:3000")
+    @PostMapping(path = "/add")
     public UserTO addNewUser(@RequestParam(value = "username") String username,
                              @RequestParam(value = "password") String password,
                              @RequestParam(value = "email") String email) throws UserCreationException {
@@ -26,5 +27,12 @@ public class UserController {
             throw new ResponseStatusException(
                     HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), ex);
         }
+    }
+
+    @ResponseBody
+    @CrossOrigin("http://localhost:3000")
+    @PostMapping(path = "/authenticate")
+    public UserTO authenticate(@RequestBody UserTO user) {
+        return new UserTO(user.getUsername(), user.getPassword());
     }
 }

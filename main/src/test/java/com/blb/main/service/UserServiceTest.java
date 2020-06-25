@@ -48,7 +48,7 @@ class UserServiceTest {
 
         UserTO createdUser = userService.insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
         Assertions.assertNotNull(createdUser, "Created user should be not null");
-        Assertions.assertEquals(CORRECT_USERNAME, createdUser.getUserName(), "Username: " + CORRECT_USERNAME);
+        Assertions.assertEquals(CORRECT_USERNAME, createdUser.getUsername(), "Username: " + CORRECT_USERNAME);
         Assertions.assertEquals(CORRECT_PASSWORD, createdUser.getPassword(), "Password: " + CORRECT_PASSWORD);
         Assertions.assertEquals(CORRECT_EMAIL, createdUser.getEmail(), "Email: : " + CORRECT_EMAIL);
     }

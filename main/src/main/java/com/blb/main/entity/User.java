@@ -39,7 +39,7 @@ public class User {
     }
 
     public User(UserTO newUser) throws UserCreationException {
-        this(newUser.getUserName(), newUser.getPassword(), newUser.getEmail());
+        this(newUser.getUsername(), newUser.getPassword(), newUser.getEmail());
     }
 
     public User() {

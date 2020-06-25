@@ -38,7 +38,7 @@ class UserControllerTest {
     @MockBean
     private UserRepository userRepository;
 
-    private final static String BASIC_USER_PATH = "/user";
+    private final static String BASIC_USER_PATH = "/users";
     private final static String ADD_USER_PATH = "/add";
 
     private final static String CORRECT_USERNAME = "USER_A";
@@ -64,7 +64,7 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").exists())
-                .andExpect(jsonPath("$.userName", is(CORRECT_USERNAME)).isString())
+                .andExpect(jsonPath("$.username", is(CORRECT_USERNAME)).isString())
                 .andExpect(jsonPath("$.password", is(CORRECT_PASSWORD)).isString())
                 .andExpect(jsonPath("$.email", is(CORRECT_EMAIL)).isString())
                 .andExpect(jsonPath("$.id").isNumber());
