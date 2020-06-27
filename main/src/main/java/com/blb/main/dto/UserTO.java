@@ -7,26 +7,26 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 public class UserTO {
 
     private long id;
-    private String userName;
+    private String username;
     private String password;
     private String email;
 
     public UserTO(User entity) {
         this.id = entity.getId();
-        this.userName = entity.getUserName();
+        this.username = entity.getUserName();
         this.password = entity.getPassword();
         this.email = entity.getEmail();
     }
 
     public UserTO(long id, String username, String email, String password) {
         this.id = id;
-        this.userName = username;
+        this.username = username;
         this.email = email;
         this.password = password;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
     public String getEmail() {

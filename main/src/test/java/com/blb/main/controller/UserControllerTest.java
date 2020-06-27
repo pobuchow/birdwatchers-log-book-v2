@@ -1,8 +1,10 @@
 package com.blb.main.controller;
 
 import com.blb.main.dao.UserRepository;
+import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
 import com.blb.main.service.UserService;
+import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -17,8 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -38,16 +42,19 @@ class UserControllerTest {
     @MockBean
     private UserRepository userRepository;
 
-    private final static String BASIC_USER_PATH = "/user";
+    private final static String BASIC_USER_PATH = "/users";
     private final static String ADD_USER_PATH = "/add";
+    private static final String AUTH_USER_PATH = "/authenticate";
 
     private final static String CORRECT_USERNAME = "USER_A";
+    private final static String NOT_EXISTING_USERNAME = "USER_A-1";
     private final static String TOO_LONG_USERNAME = "TOO_LONG_USERNAME";
 
     private final static String CORRECT_EMAIL = "user@qwe.abc";
     private final static String INCORRECT_EMAIL = "user.qwe.abc";
 
     private final static String CORRECT_PASSWORD = "C0rrect!";
+    private final static String WRONG_PASSWORD = "C0rrect!123";
     private static final String TOO_LONG_PASSWORD = "PASSWORD01#TooLong";
 
     @Test
@@ -64,7 +71,7 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").exists())
-                .andExpect(jsonPath("$.userName", is(CORRECT_USERNAME)).isString())
+                .andExpect(jsonPath("$.username", is(CORRECT_USERNAME)).isString())
                 .andExpect(jsonPath("$.password", is(CORRECT_PASSWORD)).isString())
                 .andExpect(jsonPath("$.email", is(CORRECT_EMAIL)).isString())
                 .andExpect(jsonPath("$.id").isNumber());
@@ -141,5 +148,54 @@ class UserControllerTest {
                 .param("password", TOO_LONG_PASSWORD)
                 .param("email", CORRECT_EMAIL))
                 .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @DisplayName("Should authenticate user with correct login credentials")
+    void authenticateWithCorrectLogin() throws Exception {
+        final LoginCredentialsTO loginCredentials = new LoginCredentialsTO(CORRECT_USERNAME, CORRECT_PASSWORD);
+
+        Mockito.doReturn(loginCredentials).when(userService).authorize(CORRECT_USERNAME, CORRECT_PASSWORD);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post(BASIC_USER_PATH + AUTH_USER_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(loginCredentials)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.username", is(CORRECT_USERNAME)).isString())
+                .andExpect(jsonPath("$.password", is(CORRECT_PASSWORD)).isString());
+    }
+
+    @Test
+    @DisplayName("Should not authenticate user with not existinig username")
+    void authenticateWithNotExistingUsername() throws Exception {
+        final LoginCredentialsTO loginCredentials = new LoginCredentialsTO(NOT_EXISTING_USERNAME, CORRECT_PASSWORD);
+
+        Mockito.doThrow(new UserAuthenticationException("User with the name: " + NOT_EXISTING_USERNAME + " not found")).when(userService).authorize(NOT_EXISTING_USERNAME, CORRECT_PASSWORD);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post(BASIC_USER_PATH + AUTH_USER_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(loginCredentials)))
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(containsString("Login failed")));
+    }
+
+    @Test
+    @DisplayName("Should not authenticate user with not existinig username")
+    void authenticateWithWrongPassword() throws Exception {
+        final LoginCredentialsTO loginCredentials = new LoginCredentialsTO(CORRECT_USERNAME, WRONG_PASSWORD);
+
+        Mockito.doThrow(new UserAuthenticationException("Password is not correct"))
+                .when(userService).authorize(CORRECT_USERNAME, WRONG_PASSWORD);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post(BASIC_USER_PATH + AUTH_USER_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(loginCredentials)))
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(containsString("Login failed"))).andDo(MockMvcResultHandlers.print());
     }
 }
