@@ -1,7 +1,9 @@
 package com.blb.main.controller;
 
+import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
 import com.blb.main.service.UserService;
+import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,7 +34,7 @@ public class UserController {
     @ResponseBody
     @CrossOrigin("http://localhost:3000")
     @PostMapping(path = "/authenticate")
-    public UserTO authenticate(@RequestBody UserTO user) {
-        return new UserTO(user.getUsername(), user.getPassword());
+    public LoginCredentialsTO authenticate(@RequestBody LoginCredentialsTO user) throws UserAuthenticationException {
+        return userService.authorize(user.getUsername(), user.getPassword());
     }
 }
