@@ -7,6 +7,7 @@ import com.blb.main.service.exception.UserCreationException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 public class User {
@@ -25,6 +26,9 @@ public class User {
     @JoinColumn(name = "email_id", referencedColumnName = "id")
     private Email email;
 
+    @OneToMany
+    private List<Observation> observations;
+
     public User(String login, String password, String email) throws UserCreationException {
         try {
             this.login = new Login(login, password);
@@ -38,8 +42,8 @@ public class User {
         }
     }
 
-    public User(UserTO newUser) throws UserCreationException {
-        this(newUser.getUsername(), newUser.getPassword(), newUser.getEmail());
+    public User(UserTO userTO) throws UserCreationException {
+        this(userTO.getUsername(), userTO.getPassword(), userTO.getEmail());
     }
 
     public User() {

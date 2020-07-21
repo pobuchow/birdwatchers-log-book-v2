@@ -7,6 +7,7 @@ import com.blb.main.entity.User;
 import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolationException;
@@ -30,13 +31,19 @@ public class UserService {
     }
 
     public LoginCredentialsTO authorize(String username, String password) throws UserAuthenticationException {
-        String validPassword = userRepository.findByLoginUserName(username)
-                .orElseThrow(() -> new UserAuthenticationException("User with the name: " + username + " not found"))
-                .getPassword();
-        if(validPassword.equals(password)){
+        final User user = userRepository.findByLoginUserName(username)
+                .orElseThrow(() -> new UserAuthenticationException("User with the name: " + username + " not found"));
+        if(user.getPassword().equals(password)){
             return new LoginCredentialsTO(username, password);
         }else{
             throw new UserAuthenticationException("Password is not correct");
         }
+    }
+
+    long getAuthorizedUserId() throws UserAuthenticationException {
+        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findByLoginUserName(username)
+                .orElseThrow(() -> new UserAuthenticationException("User with the name: " + username + " not found"))
+                .getId();
     }
 }
