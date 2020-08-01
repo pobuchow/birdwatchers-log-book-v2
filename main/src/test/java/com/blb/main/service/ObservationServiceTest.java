@@ -57,10 +57,7 @@ class ObservationServiceTest {
         final List<ObservationTO> result = observationService.getLastObservationsForAuthUser(5);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(5, result.size());
-        result.forEach(observation -> {
-            System.out.println(observation.getDate());
-            Assertions.assertTrue(observation.getDate().isAfter(LocalDate.of(2020, 3, 20)));
-        });
+        result.forEach(observation -> Assertions.assertTrue(observation.getDate().isAfter(LocalDate.of(2020, 3, 20))));
     }
 
 
