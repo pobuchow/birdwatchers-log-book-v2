@@ -1,8 +1,11 @@
 package com.blb.main.controller;
 
+import com.blb.main.dao.ObservationRepository;
 import com.blb.main.dao.UserRepository;
 import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
+import com.blb.main.service.ObservationService;
+import com.blb.main.service.UserAuthenticationProvider;
 import com.blb.main.service.UserService;
 import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
@@ -13,6 +16,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -21,6 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.util.ArrayList;
+
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -28,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {UserController.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
     @Autowired
@@ -41,6 +48,15 @@ class UserControllerTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private ObservationRepository observationRepository;
+
+    @MockBean
+    private ObservationService observationService;
+
+    @MockBean
+    private UserAuthenticationProvider userAuthenticationProvider;
 
     private final static String BASIC_USER_PATH = "/users";
     private final static String ADD_USER_PATH = "/add";
@@ -61,7 +77,7 @@ class UserControllerTest {
     @DisplayName("Should insert new user with correct user name, password and email and then return its TO")
     void addNewUser() throws UserCreationException, Exception {
 
-        Mockito.doReturn(new UserTO(1L, CORRECT_USERNAME, CORRECT_EMAIL, CORRECT_PASSWORD)).when(userService).insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
+        Mockito.doReturn(new UserTO(1L, CORRECT_USERNAME, CORRECT_EMAIL, CORRECT_PASSWORD, new ArrayList<>())).when(userService).insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post(BASIC_USER_PATH + ADD_USER_PATH)
