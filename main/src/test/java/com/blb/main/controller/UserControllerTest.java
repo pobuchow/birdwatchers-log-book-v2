@@ -1,10 +1,7 @@
 package com.blb.main.controller;
 
-import com.blb.main.dao.ObservationRepository;
-import com.blb.main.dao.UserRepository;
 import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
-import com.blb.main.service.ObservationService;
 import com.blb.main.service.UserAuthenticationProvider;
 import com.blb.main.service.UserService;
 import com.blb.main.service.exception.UserAuthenticationException;
@@ -40,20 +37,8 @@ class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private UserService userService;
-
-    @MockBean
-    private UserRepository userRepository;
-
-    @MockBean
-    private ObservationRepository observationRepository;
-
-    @MockBean
-    private ObservationService observationService;
 
     @MockBean
     private UserAuthenticationProvider userAuthenticationProvider;

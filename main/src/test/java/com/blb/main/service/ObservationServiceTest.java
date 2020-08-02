@@ -1,6 +1,5 @@
 package com.blb.main.service;
 
-import com.blb.main.config.MockData;
 import com.blb.main.dao.ObservationRepository;
 import com.blb.main.dto.ObservationTO;
 import com.blb.main.entity.Observation;
@@ -39,6 +38,11 @@ class ObservationServiceTest {
     @Mock
     private User user;
 
+    private final static String BLACK_WOODPECKER = "Black woodpecker";
+    private final static String EUROPEAN_GREEN_WOODPECKER = "European green woodpecker";
+    private final static String MIDDLE_SPOTTED_WOODPECKER = "Middle spotted woodpecker";
+    private final static String EURASIAN_THREE_TOED_WOODPECKER = "Eurasian three-toed woodpecker";
+
     @Test
     @DisplayName("Should get last 5 observations for mocked user")
     void getLastObservationsForAuthUser() throws UserAuthenticationException {
@@ -46,12 +50,12 @@ class ObservationServiceTest {
         Mockito.doReturn(userId).when(userService).getAuthorizedUserId();
         Mockito.doReturn(
                 Arrays.asList(
-                        new Observation(MockData.SPECIES_NAME.BLACK_WOODPECKER.name, LocalDate.of(2020, 4, 17), user),
-                        new Observation(MockData.SPECIES_NAME.EUROPEAN_GREEN_WOODPECKER.name, LocalDate.of(2020, 4, 18), user),
-                        new Observation(MockData.SPECIES_NAME.MIDDLE_SPOTTED_WOODPECKER.name, LocalDate.of(2020, 4, 19), user),
-                        new Observation(MockData.SPECIES_NAME.EURASIAN_THREE_TOED_WOODPECKER.name, LocalDate.of(2020, 4, 20), user),
-                        new Observation(MockData.SPECIES_NAME.EUROPEAN_GREEN_WOODPECKER.name, LocalDate.of(2020, 3, 20), user),
-                        new Observation(MockData.SPECIES_NAME.BLACK_WOODPECKER.name, LocalDate.of(2020, 4, 17), user)))
+                        new Observation(BLACK_WOODPECKER, LocalDate.of(2020, 4, 17), user),
+                        new Observation(EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 4, 18), user),
+                        new Observation(MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 19), user),
+                        new Observation(EURASIAN_THREE_TOED_WOODPECKER, LocalDate.of(2020, 4, 20), user),
+                        new Observation(EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 3, 20), user),
+                        new Observation(BLACK_WOODPECKER, LocalDate.of(2020, 4, 17), user)))
                 .when(observationRepository).findByUserIdOrderByDateAsc(userId);
 
         final List<ObservationTO> result = observationService.getLastObservationsForAuthUser(5);

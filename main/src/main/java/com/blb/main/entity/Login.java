@@ -21,19 +21,19 @@ public class Login {
     private static final Pattern HAS_SPECIAL_CHAR = Pattern.compile("[^a-zA-Z0-9]");
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
 
     @NotNull
     @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
-    @Column(name = "user_name")
-    String userName;
+    @Column(name = "username")
+    private String userName;
 
     @NotNull
     @Size(min = MIN_PASS_LENGTH, max = MAX_PASS_LENGTH)
     @Column(name = "password")
-    String password;
+    private String password;
 
     @OneToOne(mappedBy = "login")
     private User user;
