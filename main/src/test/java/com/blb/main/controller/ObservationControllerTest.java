@@ -1,14 +1,10 @@
 package com.blb.main.controller;
 
-import com.blb.main.config.MockData;
-import com.blb.main.dao.ObservationRepository;
-import com.blb.main.dao.UserRepository;
 import com.blb.main.entity.Observation;
 import com.blb.main.entity.User;
 import com.blb.main.service.ObservationService;
 import com.blb.main.service.UserAuthenticationProvider;
 import com.blb.main.service.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -41,23 +37,19 @@ class ObservationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private UserService userService;
-
-    @MockBean
-    private UserRepository userRepository;
-
-    @MockBean
-    private ObservationRepository observationRepository;
 
     @MockBean
     private ObservationService observationService;
 
     @MockBean
     private UserAuthenticationProvider userAuthenticationProvider;
+
+    private final static String BLACK_WOODPECKER = "Black woodpecker";
+    private final static String EUROPEAN_GREEN_WOODPECKER = "European green woodpecker";
+    private final static String MIDDLE_SPOTTED_WOODPECKER = "Middle spotted woodpecker";
+    private final static String EURASIAN_THREE_TOED_WOODPECKER = "Eurasian three-toed woodpecker";
 
     @Test
     @DisplayName("Should get mocked observations")
@@ -67,11 +59,11 @@ class ObservationControllerTest {
 
         Mockito.doReturn(
                 Arrays.asList(
-                        new Observation(MockData.SPECIES_NAME.BLACK_WOODPECKER.name, LocalDate.of(2020, 4, 17),mockedUser),
-                        new Observation(MockData.SPECIES_NAME.EUROPEAN_GREEN_WOODPECKER.name, LocalDate.of(2020, 4, 18),mockedUser),
-                        new Observation(MockData.SPECIES_NAME.MIDDLE_SPOTTED_WOODPECKER.name, LocalDate.of(2020, 4, 19), mockedUser),
-                        new Observation(MockData.SPECIES_NAME.EURASIAN_THREE_TOED_WOODPECKER.name, LocalDate.of(2020, 4, 20), mockedUser),
-                        new Observation(MockData.SPECIES_NAME.BLACK_WOODPECKER.name, LocalDate.of(2020, 4, 17), mockedUser)))
+                        new Observation(BLACK_WOODPECKER, LocalDate.of(2020, 4, 17),mockedUser),
+                        new Observation(EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 4, 18),mockedUser),
+                        new Observation(MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 19), mockedUser),
+                        new Observation(EURASIAN_THREE_TOED_WOODPECKER, LocalDate.of(2020, 4, 20), mockedUser),
+                        new Observation(MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 17), mockedUser)))
                 .when(observationService).getLastObservationsForAuthUser(5);
 
 
