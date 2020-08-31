@@ -16,7 +16,6 @@ public class ObservationController {
     private ObservationService observastionService;
 
     @ResponseBody
-    @CrossOrigin("http://localhost:3000")
     @GetMapping(path = "/getLast/{size}")
     public List<ObservationTO> getLastObservationsForAuthUser(@PathVariable(name="size") Integer size) throws UserAuthenticationException {
         return observastionService.getLastObservationsForAuthUser(size);

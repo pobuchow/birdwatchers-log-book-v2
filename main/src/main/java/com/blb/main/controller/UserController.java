@@ -18,7 +18,6 @@ public class UserController {
     private UserService userService;
 
     @ResponseBody
-    @CrossOrigin("http://localhost:3000")
     @PostMapping(path = "/add")
     public UserTO addNewUser(@RequestParam(value = "username") String username,
                              @RequestParam(value = "password") String password,
@@ -32,7 +31,6 @@ public class UserController {
     }
 
     @ResponseBody
-    @CrossOrigin("http://localhost:3000")
     @PostMapping(path = "/authenticate")
     public LoginCredentialsTO authenticate(@RequestBody LoginCredentialsTO user) throws UserAuthenticationException {
         return userService.authorize(user.getUsername(), user.getPassword());
