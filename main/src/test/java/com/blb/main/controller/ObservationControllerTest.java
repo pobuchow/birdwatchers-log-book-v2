@@ -3,7 +3,6 @@ package com.blb.main.controller;
 import com.blb.main.entity.Observation;
 import com.blb.main.entity.User;
 import com.blb.main.service.ObservationService;
-import com.blb.main.service.UserAuthenticationProvider;
 import com.blb.main.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,8 +42,8 @@ class ObservationControllerTest {
     @MockBean
     private ObservationService observationService;
 
-    @MockBean
-    private UserAuthenticationProvider userAuthenticationProvider;
+    /*@MockBean
+    private UserAuthenticationProvider userAuthenticationProvider;*/
 
     private final static String BLACK_WOODPECKER = "Black woodpecker";
     private final static String EUROPEAN_GREEN_WOODPECKER = "European green woodpecker";

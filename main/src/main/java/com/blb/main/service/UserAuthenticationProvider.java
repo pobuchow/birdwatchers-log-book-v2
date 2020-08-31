@@ -1,3 +1,4 @@
+/*
 package com.blb.main.service;
 
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -18,3 +19,4 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
+*/

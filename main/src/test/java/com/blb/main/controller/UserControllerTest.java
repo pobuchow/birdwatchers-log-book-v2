@@ -2,7 +2,6 @@ package com.blb.main.controller;
 
 import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
-import com.blb.main.service.UserAuthenticationProvider;
 import com.blb.main.service.UserService;
 import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
@@ -40,8 +39,8 @@ class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    @MockBean
-    private UserAuthenticationProvider userAuthenticationProvider;
+    /*@MockBean
+    private UserAuthenticationProvider userAuthenticationProvider;*/
 
     private final static String BASIC_USER_PATH = "/users";
     private final static String ADD_USER_PATH = "/add";

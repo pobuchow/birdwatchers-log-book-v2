@@ -1,3 +1,4 @@
+/*
 package com.blb.main.service;
 
 import com.blb.main.dto.LoginCredentialsTO;
@@ -46,4 +47,4 @@ public class HeaderAuthenticationService extends OncePerRequestFilter {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "invalid token");
         }
     }
-}
+}*/
