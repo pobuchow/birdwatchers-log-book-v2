@@ -1,5 +1,6 @@
 insert into email (email, id) values ('diego@old-camp.xyz', 1);
-insert into login (username, password, id) values ('Diego', 'Dieg0!pass', 1);
+--Dieg0!pass
+insert into login (username, password, id) values ('Diego', '$2a$10$6eogBTbEfGIBR4rw5VC5puM8bKCRBGr0NSM23njtXbJhESqkD6n5e', 1);
 insert into user (email_id, login_id, id) values (1,1,1);
 
 

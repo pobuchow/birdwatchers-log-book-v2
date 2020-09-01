@@ -2,6 +2,8 @@ package com.blb.main.controller;
 
 import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
+import com.blb.main.entity.exception.EmailValidationFailedException;
+import com.blb.main.entity.exception.LoginValidationFailedException;
 import com.blb.main.service.UserService;
 import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
@@ -24,7 +26,7 @@ public class UserController {
                              @RequestParam(value = "email") String email) throws UserCreationException {
         try {
             return userService.insertUser(username, password, email);
-        }catch(UserCreationException ex){
+        }catch(UserCreationException | EmailValidationFailedException | LoginValidationFailedException ex){
             throw new ResponseStatusException(
                     HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), ex);
         }

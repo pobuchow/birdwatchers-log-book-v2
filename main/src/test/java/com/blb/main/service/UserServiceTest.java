@@ -4,6 +4,8 @@ import com.blb.main.dao.UserRepository;
 import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
 import com.blb.main.entity.User;
+import com.blb.main.entity.exception.EmailValidationFailedException;
+import com.blb.main.entity.exception.LoginValidationFailedException;
 import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
 import org.junit.jupiter.api.Assertions;
@@ -51,7 +53,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("Should insert new user with correct login, password and email")
-    void insertUserWithCorrectLoginAndEmail() throws UserCreationException {
+    void insertUserWithCorrectLoginAndEmail() throws UserCreationException, LoginValidationFailedException, EmailValidationFailedException {
         Mockito.doReturn(new User(new UserTO(1L, CORRECT_USERNAME, CORRECT_EMAIL, CORRECT_PASSWORD, new ArrayList<>())))
                 .when(userRepository).save(Mockito.any(User.class));
 

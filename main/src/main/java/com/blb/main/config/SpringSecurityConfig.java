@@ -1,36 +1,46 @@
 package com.blb.main.config;
 
+import com.blb.main.service.PasswordEncoderService;
+import com.blb.main.service.UserAuthenticationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    private UserAuthenticationService userAuthenticationService;
+
+    @Autowired
+    private PasswordEncoderService passwordEncoderService;
+
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("admin").password(passwordEncoder().encode("admin123")).roles("ADMIN")
-                .and()
-                .withUser("user").password(passwordEncoder().encode("user123")).roles("USER");
+    protected void configure(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(authenticationProvider());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        System.out.println(passwordEncoderService.passwordEncoder().encode("Dieg0!pass"));
         http.authorizeRequests()
-                .anyRequest().authenticated()
+                .antMatchers("/users/**").permitAll()
+                .antMatchers("/observations/**").authenticated()
                 .and()
                 .httpBasic();
     }
 
     @Bean
-    PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+    DaoAuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoderService.passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(userAuthenticationService);
+        return daoAuthenticationProvider;
     }
 }
