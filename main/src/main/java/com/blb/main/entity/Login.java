@@ -44,8 +44,6 @@ public class Login {
         //constructor for jpa
     }
 
-
-
     public String getUsername() {
         return userName;
     }

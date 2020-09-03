@@ -64,7 +64,7 @@ public class UserService {
     }
 
     long getAuthorizedUserId() throws UserAuthenticationException {
-        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByLoginUserName(username)
                 .orElseThrow(() -> new UserAuthenticationException("User with the name: " + username + " not found"))
                 .getId();
