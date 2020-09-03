@@ -1,11 +1,9 @@
 package com.blb.main.controller;
 
-import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
 import com.blb.main.entity.exception.EmailValidationFailedException;
 import com.blb.main.entity.exception.LoginValidationFailedException;
 import com.blb.main.service.UserService;
-import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,11 +28,5 @@ public class UserController {
             throw new ResponseStatusException(
                     HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), ex);
         }
-    }
-
-    @ResponseBody
-    @PostMapping(path = "/authenticate")
-    public LoginCredentialsTO authenticate(@RequestBody LoginCredentialsTO user) throws UserAuthenticationException {
-        return userService.authorize(user.getUsername(), user.getPassword());
     }
 }
