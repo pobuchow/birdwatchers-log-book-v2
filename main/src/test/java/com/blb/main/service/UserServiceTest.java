@@ -1,12 +1,11 @@
 package com.blb.main.service;
 
 import com.blb.main.dao.UserRepository;
-import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
 import com.blb.main.entity.User;
 import com.blb.main.entity.exception.EmailValidationFailedException;
 import com.blb.main.entity.exception.LoginValidationFailedException;
-import com.blb.main.service.exception.UserAuthenticationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import com.blb.main.service.exception.UserCreationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -139,7 +138,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Should not insert new user with not unique username")
     void shouldThrowExceptionWhenUserNameIsNotUnique() {
-        Mockito.when(userRepository.findByLoginUserName(CORRECT_USERNAME)).thenReturn(Optional.of(new User()));
+        Mockito.when(userRepository.findByLoginUsername(CORRECT_USERNAME)).thenReturn(Optional.of(new User()));
         Assertions.assertThrows(UserCreationException.class,
                 () -> userService.insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL),
                 "UserName must be unique");
@@ -147,9 +146,9 @@ class UserServiceTest {
 
     @Test
     @DisplayName("Should authenticate user with correct login and password")
-    void authorizeWithCorrectLoginAndPassword() throws UserCreationException, UserAuthenticationException {
+    void authorizeWithCorrectLoginAndPassword() throws UserCreationException, UserNotFoundException {
         Mockito.doReturn(Optional.of(new User(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL)))
-                .when(userRepository).findByLoginUserName(CORRECT_USERNAME);
+                .when(userRepository).findByLoginUsername(CORRECT_USERNAME);
 
         LoginCredentialsTO authUser = userService.authorize(CORRECT_USERNAME, CORRECT_PASSWORD);
         Assertions.assertNotNull(authUser, "user should not be null");
@@ -159,21 +158,21 @@ class UserServiceTest {
 
     @Test
     @DisplayName("Should not authenticate user with not existing login")
-    void authorizeWithNotExistingLogin() throws UserCreationException, UserAuthenticationException {
-        Mockito.doReturn(Optional.empty()).when(userRepository).findByLoginUserName(NOT_EXISTING_USERNAME);
+    void authorizeWithNotExistingLogin() throws UserCreationException, UserNotFoundException {
+        Mockito.doReturn(Optional.empty()).when(userRepository).findByLoginUsername(NOT_EXISTING_USERNAME);
         Assertions.assertThrows(
-                UserAuthenticationException.class,
+                UserNotFoundException.class,
                 () -> userService.authorize(NOT_EXISTING_USERNAME, CORRECT_PASSWORD),
                 "User with the name: " + NOT_EXISTING_USERNAME + " not found");
     }
 
     @Test
     @DisplayName("Should not authenticate user with wrong password")
-    void authorizeWithWrongPassword() throws UserCreationException, UserAuthenticationException {
+    void authorizeWithWrongPassword() throws UserCreationException, UserNotFoundException {
         Mockito.doReturn(Optional.of(new User(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL)))
-                .when(userRepository).findByLoginUserName(CORRECT_USERNAME);
+                .when(userRepository).findByLoginUsername(CORRECT_USERNAME);
         Assertions.assertThrows(
-                UserAuthenticationException.class,
+                UserNotFoundException.class,
                 () -> userService.authorize(CORRECT_USERNAME, WRONG_PASSWORD),
                 "Password is not correct");
     }

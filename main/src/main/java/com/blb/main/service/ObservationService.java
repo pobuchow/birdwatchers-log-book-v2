@@ -3,7 +3,7 @@ package com.blb.main.service;
 import com.blb.main.dao.ObservationRepository;
 import com.blb.main.dto.ObservationTO;
 import com.blb.main.entity.Observation;
-import com.blb.main.service.exception.UserAuthenticationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ public class ObservationService {
     @Autowired
     private UserService userService;
 
-    public List<ObservationTO> getLastObservationsForAuthUser(Integer size) throws UserAuthenticationException {
+    public List<ObservationTO> getLastObservationsForAuthUser(Integer size) throws UserNotFoundException {
         return observationRepository.findByUserIdOrderByDateAsc(userService.getAuthorizedUserId()).stream()
                 .sorted(Comparator.comparing(Observation::getDate).reversed())
                 .limit(size)

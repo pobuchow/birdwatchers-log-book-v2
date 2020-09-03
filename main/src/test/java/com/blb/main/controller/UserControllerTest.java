@@ -1,9 +1,8 @@
 package com.blb.main.controller;
 
-import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
 import com.blb.main.service.UserService;
-import com.blb.main.service.exception.UserAuthenticationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import com.blb.main.service.exception.UserCreationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -173,7 +172,7 @@ class UserControllerTest {
     void authenticateWithNotExistingUsername() throws Exception {
         final LoginCredentialsTO loginCredentials = new LoginCredentialsTO(NOT_EXISTING_USERNAME, CORRECT_PASSWORD);
 
-        Mockito.doThrow(new UserAuthenticationException("User with the name: " + NOT_EXISTING_USERNAME + " not found")).when(userService).authorize(NOT_EXISTING_USERNAME, CORRECT_PASSWORD);
+        Mockito.doThrow(new UserNotFoundException("User with the name: " + NOT_EXISTING_USERNAME + " not found")).when(userService).authorize(NOT_EXISTING_USERNAME, CORRECT_PASSWORD);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post(BASIC_USER_PATH + AUTH_USER_PATH)
@@ -188,7 +187,7 @@ class UserControllerTest {
     void authenticateWithWrongPassword() throws Exception {
         final LoginCredentialsTO loginCredentials = new LoginCredentialsTO(CORRECT_USERNAME, WRONG_PASSWORD);
 
-        Mockito.doThrow(new UserAuthenticationException("Password is not correct"))
+        Mockito.doThrow(new UserNotFoundException("Password is not correct"))
                 .when(userService).authorize(CORRECT_USERNAME, WRONG_PASSWORD);
 
         mockMvc.perform(MockMvcRequestBuilders

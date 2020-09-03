@@ -28,9 +28,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        System.out.println(passwordEncoderService.passwordEncoder().encode("Dieg0!pass"));
         http.authorizeRequests()
-                .antMatchers("/users/add").permitAll()
+                .antMatchers("/users/create").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

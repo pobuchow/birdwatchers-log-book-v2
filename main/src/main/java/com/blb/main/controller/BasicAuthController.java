@@ -1,6 +1,6 @@
 package com.blb.main.controller;
 
-import com.blb.main.service.exception.UserAuthenticationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +13,7 @@ public class BasicAuthController {
 
     @ResponseBody
     @GetMapping(path = "/basic")
-    public HttpStatus authenticate() throws UserAuthenticationException {
+    public HttpStatus authenticate() throws UserNotFoundException {
         return HttpStatus.OK;
     }
 }

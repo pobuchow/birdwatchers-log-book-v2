@@ -1,13 +1,12 @@
 package com.blb.main.service;
 
 import com.blb.main.dao.UserRepository;
-import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
 import com.blb.main.entity.User;
 import com.blb.main.entity.exception.EmailValidationFailedException;
 import com.blb.main.entity.exception.LoginValidationFailedException;
-import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,13 +36,15 @@ public class UserService {
 
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile(".+@.+\\..+");
 
-    public UserTO insertUser(String userName, String password, String email)
-            throws UserCreationException, LoginValidationFailedException, EmailValidationFailedException {
-        final User userToSave = new User(validateUsername(userName),
-                passwordEncoderService.passwordEncoder().encode(validatePassword(password)),
-                validateEmail(email));
-        if(userRepository.findByLoginUserName(userName).isPresent())
-            throw new UserCreationException("Username must be unique");
+    public UserTO insertUser(String userName, String password, String email) throws UserCreationException {
+        final User userToSave;
+        try {
+            userToSave = new User(validateUsername(userName),
+                    passwordEncoderService.passwordEncoder().encode(validatePassword(password)),
+                    validateEmail(email));
+        } catch (LoginValidationFailedException | EmailValidationFailedException e) {
+            throw new UserCreationException(e.getMessage());
+        }
         User savedUser;
         try {
             savedUser = userRepository.save(userToSave);
@@ -53,25 +54,15 @@ public class UserService {
         return new UserTO(savedUser);
     }
 
-    public LoginCredentialsTO authorize(String username, String password) throws UserAuthenticationException {
-        final User user = userRepository.findByLoginUserName(username)
-                .orElseThrow(() -> new UserAuthenticationException("User with the name: " + username + " not found"));
-        if(user.getPassword().equals(password)){
-            return new LoginCredentialsTO(username, password);
-        }else{
-            throw new UserAuthenticationException("Password is not correct");
-        }
-    }
-
-    long getAuthorizedUserId() throws UserAuthenticationException {
+    long getAuthorizedUserId() throws UserNotFoundException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByLoginUserName(username)
-                .orElseThrow(() -> new UserAuthenticationException("User with the name: " + username + " not found"))
+        return userRepository.findByLoginUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User with the name: " + username + " not found"))
                 .getId();
     }
 
     Optional<User> findByUsername(String username) {
-        return userRepository.findByLoginUserName(username);
+        return userRepository.findByLoginUsername(username);
     }
 
     private String validatePassword(String password) throws LoginValidationFailedException {
@@ -96,12 +87,14 @@ public class UserService {
         return password;
     }
 
-    private String validateUsername(String str) throws LoginValidationFailedException {
-        if ( str.length() > MAX_USERNAME_LENGTH)
-            throw new LoginValidationFailedException("Nick should contain not more then " + MAX_USERNAME_LENGTH + " characters");
-        if ( str.length() < MIN_USERNAME_LENGTH)
-            throw new LoginValidationFailedException("Nick should contain at least " + MIN_USERNAME_LENGTH + " characters");
-        return str;
+    private String validateUsername(String username) throws LoginValidationFailedException {
+        if ( username.length() > MAX_USERNAME_LENGTH)
+            throw new LoginValidationFailedException("Username should contain not more then " + MAX_USERNAME_LENGTH + " characters");
+        if ( username.length() < MIN_USERNAME_LENGTH)
+            throw new LoginValidationFailedException("Username should contain at least " + MIN_USERNAME_LENGTH + " characters");
+        if(userRepository.findByLoginUsername(username).isPresent())
+            throw new LoginValidationFailedException("Username must be unique");
+        return username;
     }
 
     private String validateEmail(String email) throws EmailValidationFailedException {

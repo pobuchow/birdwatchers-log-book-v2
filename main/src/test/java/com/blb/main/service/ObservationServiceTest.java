@@ -4,7 +4,7 @@ import com.blb.main.dao.ObservationRepository;
 import com.blb.main.dto.ObservationTO;
 import com.blb.main.entity.Observation;
 import com.blb.main.entity.User;
-import com.blb.main.service.exception.UserAuthenticationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class ObservationServiceTest {
 
     @Test
     @DisplayName("Should get last 5 observations for mocked user")
-    void getLastObservationsForAuthUser() throws UserAuthenticationException {
+    void getLastObservationsForAuthUser() throws UserNotFoundException {
         final long userId = 1L;
         Mockito.doReturn(userId).when(userService).getAuthorizedUserId();
         Mockito.doReturn(
