@@ -2,7 +2,6 @@ package com.blb.main.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -14,10 +13,7 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("*")
-                        .allowedMethods(HttpMethod.GET.name(), HttpMethod.POST.name())
-                        .allowedHeaders("*")
-                        .allowedOrigins("http://http://localhost:3000");
+                registry.addMapping("/**").allowedOrigins("http://localhost:3000");
             }
         };
     }
