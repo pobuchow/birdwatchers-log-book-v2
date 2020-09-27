@@ -1,0 +1,308 @@
+{
+	"info": {
+		"_postman_id": "faebe3e2-f23c-4a6d-8069-fb2be1840ed9",
+		"name": "blb-v2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "/auth/basic - Unauthorized",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "auth",
+								"value": "RGllZ286RGllZzAhcGFzcw",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/auth/basic",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"basic"
+							]
+						},
+						"description": "shoud return 401"
+					},
+					"response": []
+				},
+				{
+					"name": "/auth/basic - Authorized",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Dieg0!pass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Diego",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/auth/basic",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"basic"
+							]
+						},
+						"description": "should return 200"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "users/create - correct",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/create?username=USER_A&password=C0rrect!&email=user@qwe.abc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"create"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "USER_A"
+								},
+								{
+									"key": "password",
+									"value": "C0rrect!"
+								},
+								{
+									"key": "email",
+									"value": "user@qwe.abc"
+								}
+							]
+						},
+						"description": "should create new user"
+					},
+					"response": []
+				},
+				{
+					"name": "users/create - not correct - too long username",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/create?username=TOO_LONG_USERNAME&password=C0rrect!&email=user@qwe.abc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"create"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "TOO_LONG_USERNAME"
+								},
+								{
+									"key": "password",
+									"value": "C0rrect!"
+								},
+								{
+									"key": "email",
+									"value": "user@qwe.abc"
+								}
+							]
+						},
+						"description": "should return 422"
+					},
+					"response": []
+				},
+				{
+					"name": "users/create - not correct - invalid email",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/create?username=USER_A&password=C0rrect!&email=user.qwe.abc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"create"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "USER_A"
+								},
+								{
+									"key": "password",
+									"value": "C0rrect!"
+								},
+								{
+									"key": "email",
+									"value": "user.qwe.abc"
+								}
+							]
+						},
+						"description": "should return 422"
+					},
+					"response": []
+				},
+				{
+					"name": "users/create - not correct - invalid password",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/create?username=USER_A&password=invalidpass&email=user@qwe.abc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"create"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "USER_A"
+								},
+								{
+									"key": "password",
+									"value": "invalidpass"
+								},
+								{
+									"key": "email",
+									"value": "user@qwe.abc"
+								}
+							]
+						},
+						"description": "should return 422"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "observations",
+			"item": [
+				{
+					"name": "observations/getLast/{size} - correct",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Dieg0!pass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Diego",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/observations/getLast/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"observations",
+								"getLast",
+								"5"
+							]
+						},
+						"description": "should return last observations for user Diego"
+					},
+					"response": []
+				},
+				{
+					"name": "observations/getLast/{size} - not correct - authorization",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/observations/getLast/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"observations",
+								"getLast",
+								"5"
+							]
+						},
+						"description": "should return 401"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	]
+}
