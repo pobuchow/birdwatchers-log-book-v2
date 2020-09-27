@@ -28,8 +28,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().authorizeRequests()
-                .antMatchers("/users/create").permitAll()
+        http.cors().and().csrf().disable().authorizeRequests()
+                .antMatchers("/users/create/**").anonymous()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();
