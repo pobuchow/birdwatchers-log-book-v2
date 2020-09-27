@@ -20,7 +20,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -84,7 +83,15 @@ class ObservationControllerTest {
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].speciesName").exists())
                 .andExpect(jsonPath("$[0].date").exists())
-                .andExpect(jsonPath("$[0].user").exists())
-                .andDo(MockMvcResultHandlers.print());
+                .andExpect(jsonPath("$[0].user").exists());
+    }
+
+    @Test
+    @DisplayName("Should not get mocked observations when user not authenticated")
+    void getLastObservationsForNonAuthUser() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get(BASIC_OBSERVATION_PATH + GET_LAST_PATH + 5))
+                .andExpect(status().isUnauthorized());
     }
 }

@@ -64,5 +64,33 @@ class ObservationServiceTest {
         result.forEach(observation -> Assertions.assertTrue(observation.getDate().isAfter(LocalDate.of(2020, 3, 20))));
     }
 
+    @Test
+    @DisplayName("Should get last observation for mocked user with all attributes")
+    void getLastObservationForAuthUser() throws UserNotFoundException {
+        final long userId = 1L;
+        Mockito.doReturn(userId).when(userService).getAuthorizedUserId();
+        final LocalDate observationDate = LocalDate.of(2020, 4, 17);
+        Mockito.doReturn(
+                Arrays.asList(
+                        new Observation(BLACK_WOODPECKER, observationDate, user)))
+                .when(observationRepository).findByUserIdOrderByDateAsc(userId);
+
+        final List<ObservationTO> result = observationService.getLastObservationsForAuthUser(1);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.size());
+        ObservationTO resultObservation = result.get(0);
+        Assertions.assertSame(BLACK_WOODPECKER, resultObservation.getSpeciesName());
+        Assertions.assertSame(observationDate, resultObservation.getDate());
+        Assertions.assertSame(user.getUserName(), resultObservation.getUsername());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when user not found")
+    void getLastObservationsForNotExistingUser() throws UserNotFoundException {
+        Mockito.doThrow(new UserNotFoundException("user")).when(userService).getAuthorizedUserId();
+        Assertions.assertThrows(UserNotFoundException.class,
+                () -> observationService.getLastObservationsForAuthUser(1));
+    }
+
 
 }
