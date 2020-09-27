@@ -1,12 +1,10 @@
 package com.blb.main.controller;
 
-import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
-import com.blb.main.service.UserAuthenticationProvider;
+import com.blb.main.service.PasswordEncoderService;
+import com.blb.main.service.UserAuthenticationService;
 import com.blb.main.service.UserService;
-import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -17,15 +15,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.ArrayList;
 
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -41,31 +38,33 @@ class UserControllerTest {
     private UserService userService;
 
     @MockBean
-    private UserAuthenticationProvider userAuthenticationProvider;
+    private UserAuthenticationService userAuthenticationService;
+
+    @MockBean
+    private PasswordEncoderService passwordEncoderService;
+
+    @MockBean
+    private DaoAuthenticationProvider daoAuthenticationProvider;
 
     private final static String BASIC_USER_PATH = "/users";
-    private final static String ADD_USER_PATH = "/add";
-    private static final String AUTH_USER_PATH = "/authenticate";
+    private final static String CREATE_USER_PATH = "/create";
 
     private final static String CORRECT_USERNAME = "USER_A";
-    private final static String NOT_EXISTING_USERNAME = "USER_A-1";
     private final static String TOO_LONG_USERNAME = "TOO_LONG_USERNAME";
 
     private final static String CORRECT_EMAIL = "user@qwe.abc";
     private final static String INCORRECT_EMAIL = "user.qwe.abc";
 
     private final static String CORRECT_PASSWORD = "C0rrect!";
-    private final static String WRONG_PASSWORD = "C0rrect!123";
-    private static final String TOO_LONG_PASSWORD = "PASSWORD01#TooLong";
 
     @Test
     @DisplayName("Should insert new user with correct user name, password and email and then return its TO")
-    void addNewUser() throws UserCreationException, Exception {
+    void addNewUser() throws Exception {
 
         Mockito.doReturn(new UserTO(1L, CORRECT_USERNAME, CORRECT_EMAIL, CORRECT_PASSWORD, new ArrayList<>())).when(userService).insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + ADD_USER_PATH)
+                .post(BASIC_USER_PATH + CREATE_USER_PATH)
                 .param("username", CORRECT_USERNAME)
                 .param("password", CORRECT_PASSWORD)
                 .param("email", CORRECT_EMAIL))
@@ -85,7 +84,7 @@ class UserControllerTest {
         Mockito.doThrow(UserCreationException.class).when(userService).insertUser(TOO_LONG_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + ADD_USER_PATH)
+                .post(BASIC_USER_PATH + CREATE_USER_PATH)
                 .param("username", TOO_LONG_USERNAME)
                 .param("password", CORRECT_PASSWORD)
                 .param("email", CORRECT_EMAIL))
@@ -99,7 +98,7 @@ class UserControllerTest {
         Mockito.doThrow(UserCreationException.class).when(userService).insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, INCORRECT_EMAIL);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + ADD_USER_PATH)
+                .post(BASIC_USER_PATH + CREATE_USER_PATH)
                 .param("username", CORRECT_USERNAME)
                 .param("password", CORRECT_PASSWORD)
                 .param("email", INCORRECT_EMAIL))
@@ -111,7 +110,7 @@ class UserControllerTest {
     void addNewUserWithoutUserName() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + ADD_USER_PATH)
+                .post(BASIC_USER_PATH + CREATE_USER_PATH)
                 .param("password", CORRECT_PASSWORD)
                 .param("email", CORRECT_EMAIL))
                 .andExpect(status().isBadRequest());
@@ -121,7 +120,7 @@ class UserControllerTest {
     @DisplayName("Should not insert new user without email and then return Exception")
     void addNewUserWithoutEmail() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + ADD_USER_PATH)
+                .post(BASIC_USER_PATH + CREATE_USER_PATH)
                 .param("username", CORRECT_USERNAME)
                 .param("password", CORRECT_PASSWORD))
                 .andExpect(status().isBadRequest());
@@ -131,72 +130,9 @@ class UserControllerTest {
     @DisplayName("Should not insert new user without password and then return Exception")
     void addNewUserWithoutPassword() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + ADD_USER_PATH)
+                .post(BASIC_USER_PATH + CREATE_USER_PATH)
                 .param("username", CORRECT_USERNAME)
                 .param("email", CORRECT_EMAIL))
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("Should not insert new user with too long password and then return Exception")
-    void addNewUserWithTooLongPassword() throws Exception, UserCreationException {
-
-        Mockito.doThrow(UserCreationException.class).when(userService).insertUser(CORRECT_USERNAME, TOO_LONG_PASSWORD, CORRECT_EMAIL);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + ADD_USER_PATH)
-                .param("username", CORRECT_USERNAME)
-                .param("password", TOO_LONG_PASSWORD)
-                .param("email", CORRECT_EMAIL))
-                .andExpect(status().isUnprocessableEntity());
-    }
-
-    @Test
-    @DisplayName("Should authenticate user with correct login credentials")
-    void authenticateWithCorrectLogin() throws Exception {
-        final LoginCredentialsTO loginCredentials = new LoginCredentialsTO(CORRECT_USERNAME, CORRECT_PASSWORD);
-
-        Mockito.doReturn(loginCredentials).when(userService).authorize(CORRECT_USERNAME, CORRECT_PASSWORD);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + AUTH_USER_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(loginCredentials)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").exists())
-                .andExpect(jsonPath("$.username", is(CORRECT_USERNAME)).isString())
-                .andExpect(jsonPath("$.password", is(CORRECT_PASSWORD)).isString());
-    }
-
-    @Test
-    @DisplayName("Should not authenticate user with not existinig username")
-    void authenticateWithNotExistingUsername() throws Exception {
-        final LoginCredentialsTO loginCredentials = new LoginCredentialsTO(NOT_EXISTING_USERNAME, CORRECT_PASSWORD);
-
-        Mockito.doThrow(new UserAuthenticationException("User with the name: " + NOT_EXISTING_USERNAME + " not found")).when(userService).authorize(NOT_EXISTING_USERNAME, CORRECT_PASSWORD);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + AUTH_USER_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(loginCredentials)))
-                .andExpect(status().isConflict())
-                .andExpect(status().reason(containsString("Login failed")));
-    }
-
-    @Test
-    @DisplayName("Should not authenticate user with not existinig username")
-    void authenticateWithWrongPassword() throws Exception {
-        final LoginCredentialsTO loginCredentials = new LoginCredentialsTO(CORRECT_USERNAME, WRONG_PASSWORD);
-
-        Mockito.doThrow(new UserAuthenticationException("Password is not correct"))
-                .when(userService).authorize(CORRECT_USERNAME, WRONG_PASSWORD);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post(BASIC_USER_PATH + AUTH_USER_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(loginCredentials)))
-                .andExpect(status().isConflict())
-                .andExpect(status().reason(containsString("Login failed"))).andDo(MockMvcResultHandlers.print());
     }
 }

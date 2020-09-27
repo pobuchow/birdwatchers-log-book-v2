@@ -1,11 +1,10 @@
 package com.blb.main.service;
 
 import com.blb.main.dao.UserRepository;
-import com.blb.main.dto.LoginCredentialsTO;
 import com.blb.main.dto.UserTO;
 import com.blb.main.entity.User;
-import com.blb.main.service.exception.UserAuthenticationException;
 import com.blb.main.service.exception.UserCreationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -26,20 +29,12 @@ import java.util.Optional;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
 
-    @Autowired
-    private UserService userService;
-
-    @MockBean
-    private UserRepository userRepository;
-
     private final static String CORRECT_USERNAME = "USER_A";
     private final static String NOT_EXISTING_USERNAME = "USER_A-1";
     private final static String TOO_SHORT_USERNAME = "ABC";
     private final static String TOO_LONG_USERNAME = "TOO_LONG_USERNAME";
-
     private final static String CORRECT_EMAIL = "user@qwe.abc";
     private final static String INCORRECT_EMAIL = "user.qwe.abc";
-
     private final static String CORRECT_PASSWORD = "C0rrect!";
     private final static String WRONG_PASSWORD = "C0rrect!123";
     private static final String TOO_LONG_PASSWORD = "PASSWORD01#TooLong";
@@ -48,12 +43,21 @@ class UserServiceTest {
     private static final String PASSWORD_WITHOUT_UPPER_CASE = "password01#";
     private static final String PASSWORD_WITHOUT_LOWER_CASE = "PASSWORD01#";
     private static final String PASSWORD_WITHOUT_SPECIAL_CHARACTER = "Password01";
+    @Autowired
+    private UserService userService;
+    @MockBean
+    private UserRepository userRepository;
+    @MockBean
+    private PasswordEncoderService passwordEncoderService;
 
     @Test
     @DisplayName("Should insert new user with correct login, password and email")
     void insertUserWithCorrectLoginAndEmail() throws UserCreationException {
         Mockito.doReturn(new User(new UserTO(1L, CORRECT_USERNAME, CORRECT_EMAIL, CORRECT_PASSWORD, new ArrayList<>())))
                 .when(userRepository).save(Mockito.any(User.class));
+        PasswordEncoder passwordEncoder = Mockito.mock(PasswordEncoder.class);
+        Mockito.doReturn(passwordEncoder).when(passwordEncoderService).passwordEncoder();
+        Mockito.doReturn(CORRECT_PASSWORD).when(passwordEncoder).encode(CORRECT_PASSWORD);
 
         UserTO createdUser = userService.insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
         Assertions.assertNotNull(createdUser, "Created user should be not null");
@@ -65,6 +69,9 @@ class UserServiceTest {
     @Test
     @DisplayName("Should not insert new user with wrong email")
     void shouldThrowExceptionWhenEmailIsWrong() {
+        PasswordEncoder passwordEncoder = Mockito.mock(PasswordEncoder.class);
+        Mockito.doReturn(passwordEncoder).when(passwordEncoderService).passwordEncoder();
+        Mockito.doReturn(CORRECT_PASSWORD).when(passwordEncoder).encode(CORRECT_PASSWORD);
         Assertions.assertThrows(UserCreationException.class,
                 () -> userService.insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, INCORRECT_EMAIL),
                 "Email should match pattern" + ".+@.+\\..+");
@@ -84,14 +91,6 @@ class UserServiceTest {
         Assertions.assertThrows(UserCreationException.class,
                 () -> userService.insertUser(TOO_LONG_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL),
                 "User name should be at most 12 characters long");
-    }
-
-    @Test
-    @DisplayName("Should not insert new user with too long password")
-    void shouldThrowExceptionWhenPasswordIsTooLong() {
-        Assertions.assertThrows(UserCreationException.class,
-                () -> userService.insertUser(CORRECT_USERNAME, TOO_LONG_PASSWORD, CORRECT_EMAIL),
-                "Password should be at most 16 characters long");
     }
 
     @Test
@@ -137,43 +136,37 @@ class UserServiceTest {
     @Test
     @DisplayName("Should not insert new user with not unique username")
     void shouldThrowExceptionWhenUserNameIsNotUnique() {
-        Mockito.when(userRepository.findByLoginUserName(CORRECT_USERNAME)).thenReturn(Optional.of(new User()));
+        Mockito.when(userRepository.findByLoginUsername(CORRECT_USERNAME)).thenReturn(Optional.of(new User()));
         Assertions.assertThrows(UserCreationException.class,
                 () -> userService.insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL),
                 "UserName must be unique");
     }
 
     @Test
-    @DisplayName("Should authenticate user with correct login and password")
-    void authorizeWithCorrectLoginAndPassword() throws UserCreationException, UserAuthenticationException {
-        Mockito.doReturn(Optional.of(new User(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL)))
-                .when(userRepository).findByLoginUserName(CORRECT_USERNAME);
-
-        LoginCredentialsTO authUser = userService.authorize(CORRECT_USERNAME, CORRECT_PASSWORD);
-        Assertions.assertNotNull(authUser, "user should not be null");
-        Assertions.assertEquals(CORRECT_USERNAME, authUser.getUsername(), "Username: " + CORRECT_USERNAME);
-        Assertions.assertEquals(CORRECT_PASSWORD, authUser.getPassword(), "Password: " + CORRECT_PASSWORD);
+    @DisplayName("Should return id of authorized user")
+    void getAuthenticatedUserId() throws UserNotFoundException {
+        User user = new User();
+        final long expectedId = 1L;
+        user.setId(expectedId);
+        Authentication mockedAuthentication = Mockito.mock(Authentication.class);
+        SecurityContext mockedContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(mockedContext.getAuthentication()).thenReturn(mockedAuthentication);
+        SecurityContextHolder.setContext(mockedContext);
+        Mockito.doReturn(CORRECT_USERNAME).when(mockedAuthentication).getName();
+        Mockito.doReturn(Optional.of(user)).when(userRepository).findByLoginUsername(CORRECT_USERNAME);
+        Assertions.assertEquals(expectedId, userService.getAuthenticatedUserId());
     }
 
     @Test
-    @DisplayName("Should not authenticate user with not existing login")
-    void authorizeWithNotExistingLogin() throws UserCreationException, UserAuthenticationException {
-        Mockito.doReturn(Optional.empty()).when(userRepository).findByLoginUserName(NOT_EXISTING_USERNAME);
-        Assertions.assertThrows(
-                UserAuthenticationException.class,
-                () -> userService.authorize(NOT_EXISTING_USERNAME, CORRECT_PASSWORD),
-                "User with the name: " + NOT_EXISTING_USERNAME + " not found");
+    @DisplayName("Should throw exception when no authenticated user found")
+    void getNotAuthenticatedUserId() throws UserNotFoundException {
+        Authentication mockedAuthentication = Mockito.mock(Authentication.class);
+        SecurityContext mockedContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(mockedContext.getAuthentication()).thenReturn(mockedAuthentication);
+        SecurityContextHolder.setContext(mockedContext);
+        Mockito.doReturn(null).when(mockedAuthentication).getName();
+        Mockito.doReturn(Optional.empty()).when(userRepository).findByLoginUsername(null);
+        Assertions.assertThrows(UserNotFoundException.class,
+                () -> userService.getAuthenticatedUserId());
     }
-
-    @Test
-    @DisplayName("Should not authenticate user with wrong password")
-    void authorizeWithWrongPassword() throws UserCreationException, UserAuthenticationException {
-        Mockito.doReturn(Optional.of(new User(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL)))
-                .when(userRepository).findByLoginUserName(CORRECT_USERNAME);
-        Assertions.assertThrows(
-                UserAuthenticationException.class,
-                () -> userService.authorize(CORRECT_USERNAME, WRONG_PASSWORD),
-                "Password is not correct");
-    }
-
 }

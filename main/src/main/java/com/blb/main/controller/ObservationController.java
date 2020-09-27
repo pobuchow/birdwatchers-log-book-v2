@@ -2,7 +2,7 @@ package com.blb.main.controller;
 
 import com.blb.main.dto.ObservationTO;
 import com.blb.main.service.ObservationService;
-import com.blb.main.service.exception.UserAuthenticationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +16,8 @@ public class ObservationController {
     private ObservationService observastionService;
 
     @ResponseBody
-    @CrossOrigin("http://localhost:3000")
     @GetMapping(path = "/getLast/{size}")
-    public List<ObservationTO> getLastObservationsForAuthUser(@PathVariable(name="size") Integer size) throws UserAuthenticationException {
+    public List<ObservationTO> getLastObservationsForAuthUser(@PathVariable(name="size") Integer size) throws UserNotFoundException {
         return observastionService.getLastObservationsForAuthUser(size);
     }
 }

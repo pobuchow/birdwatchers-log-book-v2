@@ -1,9 +1,6 @@
 package com.blb.main.entity;
 
 import com.blb.main.dto.UserTO;
-import com.blb.main.entity.exception.EmailValidationFailedException;
-import com.blb.main.entity.exception.LoginValidationFailedException;
-import com.blb.main.service.exception.UserCreationException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -29,20 +26,12 @@ public class User {
     @OneToMany
     private List<Observation> observations;
 
-    public User(String login, String password, String email) throws UserCreationException {
-        try {
-            this.login = new Login(login, password);
-        } catch (LoginValidationFailedException e) {
-            throw new UserCreationException("Error while creating login: " + e.getMessage());
-        }
-        try {
-            this.email = new Email(email);
-        } catch (EmailValidationFailedException e) {
-            throw new UserCreationException("Error while creating email: " + e.getMessage());
-        }
+    public User(String login, String password, String email) {
+        this.login = new Login(login, password);
+        this.email = new Email(email);
     }
 
-    public User(UserTO userTO) throws UserCreationException {
+    public User(UserTO userTO) {
         this(userTO.getUsername(), userTO.getPassword(), userTO.getEmail());
     }
 
@@ -54,8 +43,12 @@ public class User {
         return id;
     }
 
+    public Login getLogin() {
+        return login;
+    }
+
     public String getUserName() {
-        return login.getUserName();
+        return login.getUsername();
     }
 
     public String getEmail() {
@@ -64,5 +57,9 @@ public class User {
 
     public String getPassword() {
         return login.getPassword();
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

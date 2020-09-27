@@ -4,7 +4,7 @@ import com.blb.main.dao.ObservationRepository;
 import com.blb.main.dto.ObservationTO;
 import com.blb.main.entity.Observation;
 import com.blb.main.entity.User;
-import com.blb.main.service.exception.UserAuthenticationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,9 +45,9 @@ class ObservationServiceTest {
 
     @Test
     @DisplayName("Should get last 5 observations for mocked user")
-    void getLastObservationsForAuthUser() throws UserAuthenticationException {
+    void getLastObservationsForAuthUser() throws UserNotFoundException {
         final long userId = 1L;
-        Mockito.doReturn(userId).when(userService).getAuthorizedUserId();
+        Mockito.doReturn(userId).when(userService).getAuthenticatedUserId();
         Mockito.doReturn(
                 Arrays.asList(
                         new Observation(BLACK_WOODPECKER, LocalDate.of(2020, 4, 17), user),
@@ -62,6 +62,34 @@ class ObservationServiceTest {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(5, result.size());
         result.forEach(observation -> Assertions.assertTrue(observation.getDate().isAfter(LocalDate.of(2020, 3, 20))));
+    }
+
+    @Test
+    @DisplayName("Should get last observation for mocked user with all attributes")
+    void getLastObservationForAuthUser() throws UserNotFoundException {
+        final long userId = 1L;
+        Mockito.doReturn(userId).when(userService).getAuthenticatedUserId();
+        final LocalDate observationDate = LocalDate.of(2020, 4, 17);
+        Mockito.doReturn(
+                Arrays.asList(
+                        new Observation(BLACK_WOODPECKER, observationDate, user)))
+                .when(observationRepository).findByUserIdOrderByDateAsc(userId);
+
+        final List<ObservationTO> result = observationService.getLastObservationsForAuthUser(1);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.size());
+        ObservationTO resultObservation = result.get(0);
+        Assertions.assertEquals(BLACK_WOODPECKER, resultObservation.getSpeciesName());
+        Assertions.assertEquals(observationDate, resultObservation.getDate());
+        Assertions.assertEquals(user.getUserName(), resultObservation.getUsername());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when user not found")
+    void getLastObservationsForNotExistingUser() throws UserNotFoundException {
+        Mockito.doThrow(new UserNotFoundException("user")).when(userService).getAuthenticatedUserId();
+        Assertions.assertThrows(UserNotFoundException.class,
+                () -> observationService.getLastObservationsForAuthUser(1));
     }
 
 
