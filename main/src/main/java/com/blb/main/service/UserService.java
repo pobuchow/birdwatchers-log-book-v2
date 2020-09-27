@@ -54,7 +54,7 @@ public class UserService {
         return new UserTO(savedUser);
     }
 
-    long getAuthorizedUserId() throws UserNotFoundException {
+    long getAuthenticatedUserId() throws UserNotFoundException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByLoginUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User with the name: " + username + " not found"))

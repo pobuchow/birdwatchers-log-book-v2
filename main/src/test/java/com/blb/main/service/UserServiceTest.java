@@ -4,6 +4,7 @@ import com.blb.main.dao.UserRepository;
 import com.blb.main.dto.UserTO;
 import com.blb.main.entity.User;
 import com.blb.main.service.exception.UserCreationException;
+import com.blb.main.service.exception.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -136,5 +140,33 @@ class UserServiceTest {
         Assertions.assertThrows(UserCreationException.class,
                 () -> userService.insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL),
                 "UserName must be unique");
+    }
+
+    @Test
+    @DisplayName("Should return id of authorized user")
+    void getAuthenticatedUserId() throws UserNotFoundException {
+        User user = new User();
+        final long expectedId = 1L;
+        user.setId(expectedId);
+        Authentication mockedAuthentication = Mockito.mock(Authentication.class);
+        SecurityContext mockedContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(mockedContext.getAuthentication()).thenReturn(mockedAuthentication);
+        SecurityContextHolder.setContext(mockedContext);
+        Mockito.doReturn(CORRECT_USERNAME).when(mockedAuthentication).getName();
+        Mockito.doReturn(Optional.of(user)).when(userRepository).findByLoginUsername(CORRECT_USERNAME);
+        Assertions.assertEquals(expectedId, userService.getAuthenticatedUserId());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when no authenticated user found")
+    void getNotAuthenticatedUserId() throws UserNotFoundException {
+        Authentication mockedAuthentication = Mockito.mock(Authentication.class);
+        SecurityContext mockedContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(mockedContext.getAuthentication()).thenReturn(mockedAuthentication);
+        SecurityContextHolder.setContext(mockedContext);
+        Mockito.doReturn(null).when(mockedAuthentication).getName();
+        Mockito.doReturn(Optional.empty()).when(userRepository).findByLoginUsername(null);
+        Assertions.assertThrows(UserNotFoundException.class,
+                () -> userService.getAuthenticatedUserId());
     }
 }

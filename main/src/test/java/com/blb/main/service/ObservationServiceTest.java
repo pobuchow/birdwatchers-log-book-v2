@@ -47,7 +47,7 @@ class ObservationServiceTest {
     @DisplayName("Should get last 5 observations for mocked user")
     void getLastObservationsForAuthUser() throws UserNotFoundException {
         final long userId = 1L;
-        Mockito.doReturn(userId).when(userService).getAuthorizedUserId();
+        Mockito.doReturn(userId).when(userService).getAuthenticatedUserId();
         Mockito.doReturn(
                 Arrays.asList(
                         new Observation(BLACK_WOODPECKER, LocalDate.of(2020, 4, 17), user),
@@ -68,7 +68,7 @@ class ObservationServiceTest {
     @DisplayName("Should get last observation for mocked user with all attributes")
     void getLastObservationForAuthUser() throws UserNotFoundException {
         final long userId = 1L;
-        Mockito.doReturn(userId).when(userService).getAuthorizedUserId();
+        Mockito.doReturn(userId).when(userService).getAuthenticatedUserId();
         final LocalDate observationDate = LocalDate.of(2020, 4, 17);
         Mockito.doReturn(
                 Arrays.asList(
@@ -79,15 +79,15 @@ class ObservationServiceTest {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1, result.size());
         ObservationTO resultObservation = result.get(0);
-        Assertions.assertSame(BLACK_WOODPECKER, resultObservation.getSpeciesName());
-        Assertions.assertSame(observationDate, resultObservation.getDate());
-        Assertions.assertSame(user.getUserName(), resultObservation.getUsername());
+        Assertions.assertEquals(BLACK_WOODPECKER, resultObservation.getSpeciesName());
+        Assertions.assertEquals(observationDate, resultObservation.getDate());
+        Assertions.assertEquals(user.getUserName(), resultObservation.getUsername());
     }
 
     @Test
     @DisplayName("Should throw exception when user not found")
     void getLastObservationsForNotExistingUser() throws UserNotFoundException {
-        Mockito.doThrow(new UserNotFoundException("user")).when(userService).getAuthorizedUserId();
+        Mockito.doThrow(new UserNotFoundException("user")).when(userService).getAuthenticatedUserId();
         Assertions.assertThrows(UserNotFoundException.class,
                 () -> observationService.getLastObservationsForAuthUser(1));
     }

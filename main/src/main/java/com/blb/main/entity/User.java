@@ -58,4 +58,8 @@ public class User {
     public String getPassword() {
         return login.getPassword();
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 }

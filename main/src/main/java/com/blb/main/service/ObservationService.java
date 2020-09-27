@@ -21,7 +21,7 @@ public class ObservationService {
     private UserService userService;
 
     public List<ObservationTO> getLastObservationsForAuthUser(Integer size) throws UserNotFoundException {
-        return observationRepository.findByUserIdOrderByDateAsc(userService.getAuthorizedUserId()).stream()
+        return observationRepository.findByUserIdOrderByDateAsc(userService.getAuthenticatedUserId()).stream()
                 .sorted(Comparator.comparing(Observation::getDate).reversed())
                 .limit(size)
                 .map(ObservationTO::new)
