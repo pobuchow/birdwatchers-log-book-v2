@@ -66,11 +66,11 @@ class ObservationControllerTest {
 
         Mockito.doReturn(
                 Arrays.asList(
-                        new Observation(BLACK_WOODPECKER, LocalDate.of(2020, 4, 17),mockedUser),
-                        new Observation(EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 4, 18),mockedUser),
-                        new Observation(MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 19), mockedUser),
-                        new Observation(EURASIAN_THREE_TOED_WOODPECKER, LocalDate.of(2020, 4, 20), mockedUser),
-                        new Observation(MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 17), mockedUser)))
+                        new Observation(1L, BLACK_WOODPECKER, LocalDate.of(2020, 4, 17),mockedUser),
+                        new Observation(2L, EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 4, 18),mockedUser),
+                        new Observation(3L, MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 19), mockedUser),
+                        new Observation(4L, EURASIAN_THREE_TOED_WOODPECKER, LocalDate.of(2020, 4, 20), mockedUser),
+                        new Observation(5L, MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 17), mockedUser)))
                 .when(observationService).getLastObservationsForAuthUser(5);
 
 
@@ -79,7 +79,6 @@ class ObservationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].speciesName").exists())
                 .andExpect(jsonPath("$[0].date").exists())

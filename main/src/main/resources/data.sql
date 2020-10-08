@@ -5,7 +5,8 @@ insert into user (email_id, login_id, id) values (1,1,1);
 
 
 insert into email (email, id) values ('lester@swamp-camp.abc', 2);
-insert into login (password, username, id) values ('Lester', 'Lester0!pass', 2);
+--Lester0!pass
+insert into login (username, password, id) values ('Lester', '$2y$12$tiUk.l2finp/6rc64DfyauCaOvx.hc0WbzhnqaJg3QrRGCiiU.T0e', 2);
 insert into user (email_id, login_id, id) values (2, 2, 2);
 
 insert into observation (date, species_name, user_id, id) values ('2020-04-17',  'Black woodpecker', 1, 1);

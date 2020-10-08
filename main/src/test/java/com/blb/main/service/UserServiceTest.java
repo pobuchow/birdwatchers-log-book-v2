@@ -146,7 +146,7 @@ class UserServiceTest {
     @DisplayName("Should return id of authorized user")
     void getAuthenticatedUserId() throws UserNotFoundException {
         User user = new User();
-        final long expectedId = 1L;
+        final Long expectedId = 1L;
         user.setId(expectedId);
         Authentication mockedAuthentication = Mockito.mock(Authentication.class);
         SecurityContext mockedContext = Mockito.mock(SecurityContext.class);

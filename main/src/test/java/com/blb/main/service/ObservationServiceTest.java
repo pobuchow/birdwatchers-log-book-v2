@@ -19,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @ExtendWith(SpringExtension.class)
@@ -50,12 +51,12 @@ class ObservationServiceTest {
         Mockito.doReturn(userId).when(userService).getAuthenticatedUserId();
         Mockito.doReturn(
                 Arrays.asList(
-                        new Observation(BLACK_WOODPECKER, LocalDate.of(2020, 4, 17), user),
-                        new Observation(EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 4, 18), user),
-                        new Observation(MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 19), user),
-                        new Observation(EURASIAN_THREE_TOED_WOODPECKER, LocalDate.of(2020, 4, 20), user),
-                        new Observation(EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 3, 20), user),
-                        new Observation(BLACK_WOODPECKER, LocalDate.of(2020, 4, 17), user)))
+                        new Observation(1L, BLACK_WOODPECKER, LocalDate.of(2020, 4, 17), user),
+                        new Observation(2L, EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 4, 18), user),
+                        new Observation(3L, MIDDLE_SPOTTED_WOODPECKER, LocalDate.of(2020, 4, 19), user),
+                        new Observation(4L, EURASIAN_THREE_TOED_WOODPECKER, LocalDate.of(2020, 4, 20), user),
+                        new Observation(5L, EUROPEAN_GREEN_WOODPECKER, LocalDate.of(2020, 3, 20), user),
+                        new Observation(6L, BLACK_WOODPECKER, LocalDate.of(2020, 4, 17), user)))
                 .when(observationRepository).findByUserIdOrderByDateAsc(userId);
 
         final List<ObservationTO> result = observationService.getLastObservationsForAuthUser(5);
@@ -71,8 +72,8 @@ class ObservationServiceTest {
         Mockito.doReturn(userId).when(userService).getAuthenticatedUserId();
         final LocalDate observationDate = LocalDate.of(2020, 4, 17);
         Mockito.doReturn(
-                Arrays.asList(
-                        new Observation(BLACK_WOODPECKER, observationDate, user)))
+                Collections.singletonList(
+                        new Observation(1L, BLACK_WOODPECKER, observationDate, user)))
                 .when(observationRepository).findByUserIdOrderByDateAsc(userId);
 
         final List<ObservationTO> result = observationService.getLastObservationsForAuthUser(1);
@@ -91,6 +92,4 @@ class ObservationServiceTest {
         Assertions.assertThrows(UserNotFoundException.class,
                 () -> observationService.getLastObservationsForAuthUser(1));
     }
-
-
 }

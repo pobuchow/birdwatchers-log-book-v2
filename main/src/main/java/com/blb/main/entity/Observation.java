@@ -9,7 +9,7 @@ public class Observation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotNull
     private String speciesName;
@@ -25,7 +25,8 @@ public class Observation {
         // empty constructor for JPA
     }
 
-    public Observation(String speciesName, LocalDate date, User user) {
+    public Observation(Long id, String speciesName, LocalDate date, User user) {
+        this.id = id;
         this.speciesName = speciesName;
         this.date = date;
         this.user = user;
@@ -34,7 +35,7 @@ public class Observation {
     public Observation(String speciesName, LocalDate date) {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

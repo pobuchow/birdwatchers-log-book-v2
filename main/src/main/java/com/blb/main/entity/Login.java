@@ -13,7 +13,7 @@ public class Login {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @NotNull
     @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)

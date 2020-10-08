@@ -10,7 +10,7 @@ import java.util.List;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class UserTO {
 
-    private long id;
+    private Long id;
     private String username;
     private String password;
     private String email;
@@ -23,7 +23,7 @@ public class UserTO {
         this.email = entity.getEmail();
     }
 
-    public UserTO(long id, String username, String email, String password, List<Observation> observations) {
+    public UserTO(Long id, String username, String email, String password, List<Observation> observations) {
         this.id = id;
         this.username = username;
         this.email = email;
