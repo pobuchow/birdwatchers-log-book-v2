@@ -80,7 +80,7 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <configuration>
-                        <mainClass>com.blb.app.BirdwatchersLogBookV2Application</mainClass>
+                        <skip>true</skip>
                     </configuration>
                 </plugin>
                 <plugin>
