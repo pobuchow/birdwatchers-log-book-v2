@@ -1,4 +1,4 @@
-module com.blb.service {
+open module com.blb.service {
     requires spring.web;
     requires spring.beans;
     requires spring.context;

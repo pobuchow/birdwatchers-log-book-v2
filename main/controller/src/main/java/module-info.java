@@ -1,4 +1,4 @@
-module com.blb.controller {
+open module com.blb.controller {
     requires spring.beans;
     requires spring.web;
     requires com.blb.service;
