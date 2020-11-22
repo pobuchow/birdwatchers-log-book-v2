@@ -15,13 +15,6 @@ public class UserTO {
     private String email;
     private List<ObservationTO> observations;
 
-   /* public UserTO(User entity) {
-        this.id = entity.getId();
-        this.username = entity.getUserName();
-        this.password = entity.getPassword();
-        this.email = entity.getEmail();
-    }*/
-
     public UserTO(Long id, String username, String email, String password, List<ObservationTO> observations) {
         this.id = id;
         this.username = username;

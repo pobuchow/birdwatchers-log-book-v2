@@ -29,10 +29,6 @@ public class User {
         this.email = new Email(email);
     }
 
-    /*public User(UserTO userTO) {
-        this(userTO.getUsername(), userTO.getPassword(), userTO.getEmail());
-    }*/
-
     public User() {
         //constructor jor jpa
     }
@@ -50,7 +46,7 @@ public class User {
     }
 
     public String getEmail() {
-        return email.getEmail();
+        return email.getLiteral();
     }
 
     public String getPassword() {

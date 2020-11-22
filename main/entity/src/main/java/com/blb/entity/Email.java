@@ -13,21 +13,21 @@ public class Email {
 
     @NotNull
     @Column(name = "email")
-    private String email;
+    private String literal;
 
     @OneToOne(mappedBy = "email")
     private User user;
 
     public Email(String email) {
-        this.email = email;
+        this.literal = email;
     }
 
     public Email() {
         //constructor for jpa
     }
 
-    public String getEmail() {
-        return email;
+    public String getLiteral() {
+        return literal;
     }
 }
 

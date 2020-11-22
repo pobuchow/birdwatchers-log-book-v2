@@ -64,7 +64,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Should not insert new user with too long user name and then return Exception")
-    void addNewUserWithWrongUserName() throws Exception, UserCreationException {
+    void addNewUserWithWrongUserName() throws Exception {
 
         Mockito.doThrow(UserCreationException.class).when(userService).insertUser(TOO_LONG_USERNAME, CORRECT_PASSWORD, CORRECT_EMAIL);
 

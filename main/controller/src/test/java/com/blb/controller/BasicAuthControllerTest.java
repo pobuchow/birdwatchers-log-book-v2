@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 @ContextConfiguration(classes = BasicAuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class BasicAuthControllerTest {
+class BasicAuthControllerTest {
 
     private static final String BASIC_AUTH_PATH = "/auth";
 
