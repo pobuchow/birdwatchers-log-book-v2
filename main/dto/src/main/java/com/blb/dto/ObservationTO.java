@@ -19,10 +19,6 @@ public class ObservationTO {
         this.username = username;
     }
 
-    /*public ObservationTO(Observation entity) {
-        this(entity.getId(), entity.getSpeciesName(), entity.getDate(), entity.getUser().getUserName());
-    }*/
-
     public String getSpeciesName() {
         return speciesName;
     }

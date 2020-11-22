@@ -12,8 +12,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @ComponentScan(
         basePackages = {
-            "com.blb.controller",
-            "com.blb.service"},
+                "com.blb.controller",
+                "com.blb.service",
+                "com.blb.app.config"
+        },
         basePackageClasses = {
                 BasicAuthController.class,
                 ObservationController.class,
