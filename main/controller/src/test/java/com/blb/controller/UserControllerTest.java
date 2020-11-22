@@ -1,22 +1,17 @@
 package com.blb.controller;
 
 import com.blb.dto.UserTO;
-import com.blb.service.PasswordEncoderService;
-import com.blb.service.UserAuthenticationService;
 import com.blb.service.UserService;
 import com.blb.service.exception.UserCreationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -25,9 +20,8 @@ import java.util.ArrayList;
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = {UserController.class})
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@WebMvcTest
+@ContextConfiguration(classes = UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
@@ -36,15 +30,6 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
-
-    @MockBean
-    private UserAuthenticationService userAuthenticationService;
-
-    @MockBean
-    private PasswordEncoderService passwordEncoderService;
-
-    @MockBean
-    private DaoAuthenticationProvider daoAuthenticationProvider;
 
     private final static String BASIC_USER_PATH = "/users";
     private final static String CREATE_USER_PATH = "/create";
@@ -93,7 +78,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Should not insert new user with wrong email and then return Exception")
-    void addNewUserWithWrongEmail() throws Exception, UserCreationException {
+    void addNewUserWithWrongEmail() throws Exception {
 
         Mockito.doThrow(UserCreationException.class).when(userService).insertUser(CORRECT_USERNAME, CORRECT_PASSWORD, INCORRECT_EMAIL);
 
@@ -135,4 +120,5 @@ class UserControllerTest {
                 .param("email", CORRECT_EMAIL))
                 .andExpect(status().isBadRequest());
     }
+
 }
