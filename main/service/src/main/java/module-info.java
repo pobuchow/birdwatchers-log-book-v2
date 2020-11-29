@@ -6,6 +6,7 @@ open module com.blb.service {
     requires com.blb.entity;
     requires spring.security.core;
     requires java.validation;
+    requires org.apache.logging.log4j;
 
     exports com.blb.service;
     exports com.blb.service.exception;

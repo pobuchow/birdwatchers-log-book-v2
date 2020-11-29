@@ -26,8 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class ObservationControllerTest {
 
-    private static final String BASIC_OBSERVATION_PATH = "/observations";
-    private static final String GET_LAST_PATH = "/getLast/";
+    private static final String BASIC_OBSERVATION_PATH = "/observations/";
+    private static final String GET_LAST_PATH = "getLast/";
 
     @Autowired
     private MockMvc mockMvc;
@@ -68,5 +68,19 @@ class ObservationControllerTest {
                 .andExpect(jsonPath("$[0].speciesName").exists())
                 .andExpect(jsonPath("$[0].date").exists())
                 .andExpect(jsonPath("$[0].user").exists());
+    }
+
+    @Test
+    @DisplayName("Should delete observation and return 200")
+    void deleteObservationForAuthUser() throws Exception {
+
+        Long observationToBeDeleted = 4L;
+
+        Mockito.doReturn(true)
+                .when(observationService).deleteObservationForAuthUser(observationToBeDeleted);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete(BASIC_OBSERVATION_PATH + observationToBeDeleted))
+                .andExpect(status().isOk());
     }
 }

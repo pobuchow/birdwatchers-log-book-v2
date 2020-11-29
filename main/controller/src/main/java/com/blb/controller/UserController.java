@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping(path = "/users")
+@RequestMapping(path = "/users/")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     @ResponseBody
-    @PostMapping(path = "/create")
+    @PostMapping(path = "create")
     public UserTO create(@RequestParam(value = "username") String username,
                          @RequestParam(value = "password") String password,
                          @RequestParam(value = "email") String email) {
