@@ -5,6 +5,7 @@ import com.blb.entity.Observation;
 import com.blb.entity.User;
 import com.blb.repository.ObservationRepository;
 import com.blb.service.exception.ObservationNotFoundException;
+import com.blb.service.exception.OperationNotAllowedException;
 import com.blb.service.exception.UserNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +36,7 @@ public class ObservationService {
                 .collect(Collectors.toList());
     }
 
-    public boolean deleteObservationForAuthUser(Long observationId) throws ObservationNotFoundException, UserNotFoundException {
+    public boolean deleteObservationForAuthUser(Long observationId) throws ObservationNotFoundException, UserNotFoundException, OperationNotAllowedException {
         final Observation observation = observationRepository.findById(observationId)
                 .orElseThrow(() ->
                         new ObservationNotFoundException(observationId));
@@ -44,10 +45,10 @@ public class ObservationService {
             logger.error("Observation: {} has no user", observationId);
             return false;
         }
-        if(userService.getAuthenticatedUserId().equals(user.getId())){
-            observationRepository.delete(observation);
-            return true;
+        if(!userService.getAuthenticatedUserId().equals(user.getId())){
+            throw new OperationNotAllowedException("Requested operation is not allowed for current user");
         }
-        return false;
+        observationRepository.delete(observation);
+        return true;
     }
 }

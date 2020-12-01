@@ -3,6 +3,7 @@ package com.blb.controller;
 import com.blb.dto.ObservationTO;
 import com.blb.service.ObservationService;
 import com.blb.service.exception.ObservationNotFoundException;
+import com.blb.service.exception.OperationNotAllowedException;
 import com.blb.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,13 +34,18 @@ public class ObservationController {
     @DeleteMapping(path = "/{id}")
     public HttpStatus deleteObservationForAuthUser(@PathVariable(name="id") Long id) {
         try {
-            return observastionService.deleteObservationForAuthUser(id) ? HttpStatus.OK : HttpStatus.UNPROCESSABLE_ENTITY;
+            if (observastionService.deleteObservationForAuthUser(id)) return HttpStatus.OK;
+            throw new ResponseStatusException(
+                    HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (UserNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "User not found", e);
         } catch (ObservationNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "Observation not found", e);
+        } catch (OperationNotAllowedException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
     }
 }

@@ -4,6 +4,9 @@ import com.blb.entity.Observation;
 import com.blb.entity.User;
 import com.blb.service.ObservationService;
 import com.blb.service.UserService;
+import com.blb.service.exception.ObservationNotFoundException;
+import com.blb.service.exception.OperationNotAllowedException;
+import com.blb.service.exception.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.time.LocalDate;
 import java.util.Arrays;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest
@@ -28,6 +32,7 @@ class ObservationControllerTest {
 
     private static final String BASIC_OBSERVATION_PATH = "/observations/";
     private static final String GET_LAST_PATH = "getLast/";
+    private static final String USER_NOT_FOUND_ERROR_MESSAGE = "User not found";
 
     @Autowired
     private MockMvc mockMvc;
@@ -71,6 +76,18 @@ class ObservationControllerTest {
     }
 
     @Test
+    @DisplayName("Should get 409 when auth user not found by get observations")
+    void getLastObservationsForNotFoundUser() throws Exception {
+        Mockito.doThrow(UserNotFoundException.class)
+                .when(observationService).getLastObservationsForAuthUser(5);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get(BASIC_OBSERVATION_PATH + GET_LAST_PATH + 5))
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(containsString(USER_NOT_FOUND_ERROR_MESSAGE)));
+    }
+
+    @Test
     @DisplayName("Should delete observation and return 200")
     void deleteObservationForAuthUser() throws Exception {
 
@@ -82,5 +99,63 @@ class ObservationControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                 .delete(BASIC_OBSERVATION_PATH + observationToBeDeleted))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Should get 409 when auth user not found by delete observation")
+    void deleteObservationForNotFoundUser() throws Exception {
+
+        Long observationToBeDeleted = 4L;
+
+        Mockito.doThrow(UserNotFoundException.class)
+                .when(observationService).deleteObservationForAuthUser(observationToBeDeleted);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete(BASIC_OBSERVATION_PATH + observationToBeDeleted))
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(containsString(USER_NOT_FOUND_ERROR_MESSAGE)));
+    }
+
+    @Test
+    @DisplayName("Should get 409 when requested observation to delete does not exists")
+    void deleteNotFoundObservation() throws Exception {
+
+        Long observationToBeDeleted = 4L;
+
+        Mockito.doThrow(ObservationNotFoundException.class)
+                .when(observationService).deleteObservationForAuthUser(observationToBeDeleted);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete(BASIC_OBSERVATION_PATH + observationToBeDeleted))
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(containsString("Observation not found")));
+    }
+
+    @Test
+    @DisplayName("Should get 403 when requested observation to delete does not belong to auth user")
+    void deleteObservationNotBelongsToAuthUser() throws Exception {
+
+        Long observationToBeDeleted = 4L;
+
+        Mockito.doThrow(OperationNotAllowedException.class)
+                .when(observationService).deleteObservationForAuthUser(observationToBeDeleted);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete(BASIC_OBSERVATION_PATH + observationToBeDeleted))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Should get 422 when requested observation in unprocessable")
+    void deleteUnprocessableObservation() throws Exception {
+
+        Long observationToBeDeleted = 4L;
+
+        Mockito.doReturn(false)
+                .when(observationService).deleteObservationForAuthUser(observationToBeDeleted);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete(BASIC_OBSERVATION_PATH + observationToBeDeleted))
+                .andExpect(status().isUnprocessableEntity());
     }
 }
