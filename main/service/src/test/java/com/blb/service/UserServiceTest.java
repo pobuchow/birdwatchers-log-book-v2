@@ -157,7 +157,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw com.blb.entity.exception when no authenticated user found")
+    @DisplayName("Should throw UserNotFoundException when no authenticated user found")
     void getNotAuthenticatedUserId() throws UserNotFoundException {
         Authentication mockedAuthentication = Mockito.mock(Authentication.class);
         SecurityContext mockedContext = Mockito.mock(SecurityContext.class);
@@ -167,5 +167,20 @@ class UserServiceTest {
         Mockito.doReturn(Optional.empty()).when(userRepository).findByLoginUsername(null);
         Assertions.assertThrows(UserNotFoundException.class,
                 () -> userService.getAuthenticatedUserId());
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException user entity is corrupted")
+    void testGetAuthenticatedUserId() {
+        User user = new User();
+        Authentication mockedAuthentication = Mockito.mock(Authentication.class);
+        SecurityContext mockedContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(mockedContext.getAuthentication()).thenReturn(mockedAuthentication);
+        SecurityContextHolder.setContext(mockedContext);
+        Mockito.doReturn(CORRECT_USERNAME).when(mockedAuthentication).getName();
+        Mockito.doReturn(Optional.of(user)).when(userRepository).findByLoginUsername(CORRECT_USERNAME);
+        Assertions.assertThrows(UserNotFoundException.class,
+                () -> userService.getAuthenticatedUserId(),
+                "Corrupted entity - User with the name: " + CORRECT_USERNAME + " has no id");
     }
 }

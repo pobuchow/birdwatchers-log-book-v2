@@ -4,6 +4,8 @@ import com.blb.repository.ObservationRepository;
 import com.blb.dto.ObservationTO;
 import com.blb.entity.Observation;
 import com.blb.entity.User;
+import com.blb.service.exception.ObservationNotFoundException;
+import com.blb.service.exception.OperationNotAllowedException;
 import com.blb.service.exception.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +23,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ObservationService.class})
@@ -86,10 +89,55 @@ class ObservationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw com.blb.entity.exception when user not found")
+    @DisplayName("Should throw UserNotFoundException when user not found")
     void getLastObservationsForNotExistingUser() throws UserNotFoundException {
         Mockito.doThrow(new UserNotFoundException("user")).when(userService).getAuthenticatedUserId();
         Assertions.assertThrows(UserNotFoundException.class,
                 () -> observationService.getLastObservationsForAuthUser(1));
     }
+
+    @Test
+    @DisplayName("Should throw ObservationNotFoundException when observation not found")
+    void deleteNotFoundObservation(){
+        Long observationId = 4L;
+        Mockito.doReturn(Optional.empty()).when(observationRepository).findById(observationId);
+        Assertions.assertThrows(
+                ObservationNotFoundException.class,
+                () -> observationService.deleteObservationForAuthUser(observationId),
+                "Observation with id: " + observationId + " not found");
+    }
+
+    @Test
+    @DisplayName("Should return false when observation has no user")
+    void deleteObservationUnprocessable() throws UserNotFoundException, ObservationNotFoundException, OperationNotAllowedException {
+        Long observationId = 4L;
+        Mockito.doReturn(Optional.of(new Observation())).when(observationRepository).findById(observationId);
+        Assertions.assertEquals(false, observationService.deleteObservationForAuthUser(observationId));
+    }
+
+    @Test
+    @DisplayName("Should throw OperationNotAllowedException when observation does not belong to auth user")
+    void deleteObservationThatNotBelongsToUser() throws UserNotFoundException, ObservationNotFoundException, OperationNotAllowedException {
+        Long observationId = 4L;
+        Long userId = 5L;
+        Mockito.doReturn(userId).when(user).getId();
+        Mockito.doReturn(Optional.of(new Observation(observationId, "speciesName", null, user))).when(observationRepository).findById(observationId);
+        Mockito.doReturn(userId+1L).when(userService).getAuthenticatedUserId();
+        Assertions.assertThrows(
+                OperationNotAllowedException.class,
+                () -> observationService.deleteObservationForAuthUser(observationId),
+                "Requested operation is not allowed for current user");
+    }
+
+    @Test
+    @DisplayName("Should return true when observation deleted")
+    void deleteObservation() throws UserNotFoundException, ObservationNotFoundException, OperationNotAllowedException {
+        Long observationId = 4L;
+        Long userId = 5L;
+        Mockito.doReturn(userId).when(user).getId();
+        Mockito.doReturn(Optional.of(new Observation(observationId, "speciesName", null, user))).when(observationRepository).findById(observationId);
+        Mockito.doReturn(userId).when(userService).getAuthenticatedUserId();
+        Assertions.assertEquals(true, observationService.deleteObservationForAuthUser(observationId));
+    }
+
 }
