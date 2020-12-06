@@ -13,14 +13,14 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/observations/")
+@RequestMapping(path = "/observations")
 public class ObservationController {
 
     @Autowired
     private ObservationService observastionService;
 
     @ResponseBody
-    @GetMapping(path = "getLast/{size}")
+    @GetMapping(path = "/getLast/{size}")
     public List<ObservationTO> getLastObservationsForAuthUser(@PathVariable(name="size") Integer size) {
         try {
             return observastionService.getLastObservationsForAuthUser(size);
