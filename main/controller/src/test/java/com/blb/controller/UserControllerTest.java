@@ -31,8 +31,8 @@ class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    private final static String BASIC_USER_PATH = "/users";
-    private final static String CREATE_USER_PATH = "/create";
+    private final static String BASIC_USER_PATH = "/users/";
+    private final static String CREATE_USER_PATH = "create";
 
     private final static String CORRECT_USERNAME = "USER_A";
     private final static String TOO_LONG_USERNAME = "TOO_LONG_USERNAME";
