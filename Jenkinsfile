@@ -31,7 +31,6 @@ pipeline {
         stage ('Docker Build') {
             steps {
                 sh '''
-                cd main
                 docker images -a
                 docker build -t pobuchow/birdwatchers-log-book-v2 .
                 docker images -a
