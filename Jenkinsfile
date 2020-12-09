@@ -16,7 +16,15 @@ pipeline {
             steps {
                 sh '''
                 cd main
-                mvn clean package spring-boot:repackage
+                mvn clean package spring-boot:repackage -B -DskipTests
+                '''
+            }
+        }
+        stage ('Test') {
+            steps {
+                sh '''
+                cd main
+                mvn test
                 '''
             }
         }
