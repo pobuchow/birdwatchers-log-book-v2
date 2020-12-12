@@ -41,9 +41,8 @@ pipeline {
             steps {
                 sh '''
                 docker run -d -p 8080:8080 pobuchow/birdwatchers-log-book-v2
+                hostname -I | cut -d' ' -f1
                 '''
-                echo 'Deployed on ip'
-                sh 'hostname -I | cut -d' ' -f1'
             }
         }
     }
