@@ -37,5 +37,14 @@ pipeline {
                 '''
             }
         }
+        stage ('Deploy'){
+            steps {
+                echo "Deployed with address: "
+                sh '''
+                docker run -p 8080:8080 pobuchow/birdwatchers-log-book-v2
+                hostname -I | cut -d' ' -f1
+                '''
+            }
+        }
     }
 }
